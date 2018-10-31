@@ -12,6 +12,8 @@ This package is mostly to train myself packging a python package from `c++` but 
 
 *The package still is under active development*
 
+This work
+
 Quick start
 ------------
 
