@@ -51,7 +51,7 @@ lambda_TVD = [0.1,1,10,100,1000]
 
 for l in lambda_TVD:
   denoised = TVD(C,l)
-  plt.plot(X,denoised, lw = 1, zorder = 2, label= "TVD l = %s"%(l))
+  plt.plot(X,denoised, lw = 1, zorder = 2, label= r"TVD $\lambda$ = %s"%(l))
 
 
 
@@ -65,7 +65,7 @@ plt.savefig("Example.png", dpi = 500)
 
 ```
 
-
+![alt text]https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/blob/master/examples/Example.png
 
 
 

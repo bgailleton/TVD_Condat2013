@@ -22,7 +22,7 @@ lambda_TVD = [0.1,1,10,100,1000]
 
 for l in lambda_TVD:
 	denoised = TVD(C,l)
-	plt.plot(X,denoised, lw = 1, zorder = 2, label= "TVD l = %s"%(l))
+	plt.plot(X,denoised, lw = 1, zorder = 2, label= r"TVD $\lambda$ = %s"%(l))
 
 
 
