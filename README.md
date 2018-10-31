@@ -6,7 +6,7 @@ TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm 
 The `c++` core code has been adapted from `C` version available on the website of the manuscript orignal authors: http://www.gipsa-lab.grenoble-inp.fr/~laurent.condat/publications.html
 *Cite it if you use it.*
 
-This mostly to train myself packging a python package from `c++` but also it is a really useful and efficient algorithm for:
+This package is mostly to train myself packging a python package from `c++` but also it is a really useful and efficient algorithm for:
 - Direct denoising for data that can be represented by flat segments
 - Indirect curve denoising using a detrend-denoise-retrend approach (Not implemented yet)
 
@@ -23,7 +23,7 @@ from TVDCondat2013 import TVD
 # Generating 2 segments of a noisy signal
 A = np.random.rand(100)
 B = np.random.rand(100) + 4
-C = np.concatenate((B,B))
+C = np.concatenate((A,B))
 
 # Setting the regulation parameters
 lambda_TVD = 5

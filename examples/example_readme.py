@@ -3,16 +3,17 @@ from TVDCondat2013 import TVD
 from matplotlib import pyplot as plt
 
 
-# Generating 2 segments of a noisy signal
-size_segment = 200
-A = np.random.rand(size_segment)
-B = np.random.rand(size_segment)
-B = B + 4
-C = np.concatenate((A,B))
+# Generating n segments of a noisy signal
+size_segment = 400
+n_segments = 5
+C = np.random.rand(size_segment) + np.random.randint(-5,5)
+for d in range(n_segments-1):
+	A = np.random.rand(size_segment) + np.random.randint(-5,5)
+	C = np.concatenate((C,A))
 
-X = np.arange(2*size_segment)
+X = np.arange(n_segments*size_segment)
 
-plt.plot(X,C,color= 'r', lw = 0.5, zorder = 1, label= "Raw signal")
+plt.plot(X,C,color= 'r', lw = 0.2, zorder = 1, label= "Raw signal")
 
 # Setting the regulation parameters
 lambda_TVD = [0.1,1,10,100,1000]
