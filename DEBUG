@@ -1,82 +1,13 @@
-Processing b:\dev_lsd\pycondat2013\pycondat2013
-Requirement already satisfied: pybind11>=2.0.1 in c:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages (from TVD-Condat2013==0.0.1) (2.2.4)
-Requirement already satisfied: numpy in c:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages (from TVD-Condat2013==0.0.1) (1.15.2)
-Building wheels for collected packages: TVD-Condat2013
-  Running setup.py bdist_wheel for TVD-Condat2013: started
-  Running setup.py bdist_wheel for TVD-Condat2013: finished with status 'error'
-  Complete output from command c:\users\s1675537\appdata\local\continuum\anaconda3\python.exe -u -c "import setuptools, tokenize;__file__='C:\\Users\\s1675537\\AppData\\Local\\Temp\\pip-req-build-3vyqbima\\setup.py';f=getattr(tokenize, 'open', open)(__file__);code=f.read().replace('\r\n', '\n');f.close();exec(compile(code, __file__, 'exec'))" bdist_wheel -d C:\Users\s1675537\AppData\Local\Temp\pip-wheel-3odgbwmw --python-tag cp36:
-  running bdist_wheel
-  running build
-  running build_ext
-  building 'TVDCondat2013' extension
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\bin\HostX86\x64\cl.exe /c /nologo /Ox /W3 /GL /DNDEBUG /MD -Ic:\users\s1675537\appdata\local\continuum\anaconda3\Include -IC:\Users\s1675537\AppData\Roaming\Python\Python36\Include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages\numpy\core\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\Library\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include "-IC:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\ATLMFC\include" "-IC:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\include" "-IC:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\ucrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\shared" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\winrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\cppwinrt" /EHsc /Tpsrc/main.cpp /Fobuild\temp.win-amd64-3.6\Release\src/main.obj /EHsc /DVERSION_INFO=\"0.0.1\"
-  main.cpp
-  src/main.cpp(22): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
-  src/main.cpp(58): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(63): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(71): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  src/main.cpp(73): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  src/main.cpp(76): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(81): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(89): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  src/main.cpp(91): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  src/main.cpp(94): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(99): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(107): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-  src/main.cpp(113): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(121): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(130): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(139): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(143): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(147): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(152): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  src/main.cpp(156): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\bin\HostX86\x64\link.exe /nologo /INCREMENTAL:NO /LTCG /DLL /MANIFEST:EMBED,ID=2 /MANIFESTUAC:NO /LIBPATH:c:\users\s1675537\appdata\local\continuum\anaconda3\libs /LIBPATH:c:\users\s1675537\appdata\local\continuum\anaconda3\PCbuild\amd64 "/LIBPATH:C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\ATLMFC\lib\x64" "/LIBPATH:C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\lib\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\lib\um\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\10\lib\10.0.17134.0\ucrt\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\10\lib\10.0.17134.0\um\x64" /EXPORT:PyInit_TVDCondat2013 build\temp.win-amd64-3.6\Release\src/main.obj /OUT:build\lib.win-amd64-3.6\TVDCondat2013.cp36-win_amd64.pyd /IMPLIB:build\temp.win-amd64-3.6\Release\src\TVDCondat2013.cp36-win_amd64.lib
-  LINK : error LNK2001: unresolved external symbol PyInit_TVDCondat2013
-  build\temp.win-amd64-3.6\Release\src\TVDCondat2013.cp36-win_amd64.lib : fatal error LNK1120: 1 unresolved externals
-  error: command 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Tools\\MSVC\\14.14.26428\\bin\\HostX86\\x64\\link.exe' failed with exit status 1120
-  
-  ----------------------------------------
-  Running setup.py clean for TVD-Condat2013
-Failed to build TVD-Condat2013
-Installing collected packages: TVD-Condat2013
-  Running setup.py install for TVD-Condat2013: started
-    Running setup.py install for TVD-Condat2013: finished with status 'error'
-    Complete output from command c:\users\s1675537\appdata\local\continuum\anaconda3\python.exe -u -c "import setuptools, tokenize;__file__='C:\\Users\\s1675537\\AppData\\Local\\Temp\\pip-req-build-3vyqbima\\setup.py';f=getattr(tokenize, 'open', open)(__file__);code=f.read().replace('\r\n', '\n');f.close();exec(compile(code, __file__, 'exec'))" install --record C:\Users\s1675537\AppData\Local\Temp\pip-record-y5a_3lm2\install-record.txt --single-version-externally-managed --compile:
-    running install
-    running build
-    running build_ext
-    building 'TVDCondat2013' extension
-    creating build
-    creating build\temp.win-amd64-3.6
-    creating build\temp.win-amd64-3.6\Release
-    creating build\temp.win-amd64-3.6\Release\src
-    C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\bin\HostX86\x64\cl.exe /c /nologo /Ox /W3 /GL /DNDEBUG /MD -Ic:\users\s1675537\appdata\local\continuum\anaconda3\Include -IC:\Users\s1675537\AppData\Roaming\Python\Python36\Include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages\numpy\core\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\Library\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include -Ic:\users\s1675537\appdata\local\continuum\anaconda3\include "-IC:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\ATLMFC\include" "-IC:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\include" "-IC:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\ucrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\shared" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\um" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\winrt" "-IC:\Program Files (x86)\Windows Kits\10\include\10.0.17134.0\cppwinrt" /EHsc /Tpsrc/main.cpp /Fobuild\temp.win-amd64-3.6\Release\src/main.obj /EHsc /DVERSION_INFO=\"0.0.1\"
-    main.cpp
-    src/main.cpp(22): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
-    src/main.cpp(58): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(63): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(71): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-    src/main.cpp(73): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-    src/main.cpp(76): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(81): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(89): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-    src/main.cpp(91): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-    src/main.cpp(94): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(99): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(107): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
-    src/main.cpp(113): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(121): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(130): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(139): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(143): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(147): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(152): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    src/main.cpp(156): warning C4244: '=': conversion from 'double' to 'unsigned int', possible loss of data
-    creating C:\Users\s1675537\AppData\Local\Temp\pip-req-build-3vyqbima\build\lib.win-amd64-3.6
-    C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\bin\HostX86\x64\link.exe /nologo /INCREMENTAL:NO /LTCG /DLL /MANIFEST:EMBED,ID=2 /MANIFESTUAC:NO /LIBPATH:c:\users\s1675537\appdata\local\continuum\anaconda3\libs /LIBPATH:c:\users\s1675537\appdata\local\continuum\anaconda3\PCbuild\amd64 "/LIBPATH:C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\ATLMFC\lib\x64" "/LIBPATH:C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.14.26428\lib\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\lib\um\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\10\lib\10.0.17134.0\ucrt\x64" "/LIBPATH:C:\Program Files (x86)\Windows Kits\10\lib\10.0.17134.0\um\x64" /EXPORT:PyInit_TVDCondat2013 build\temp.win-amd64-3.6\Release\src/main.obj /OUT:build\lib.win-amd64-3.6\TVDCondat2013.cp36-win_amd64.pyd /IMPLIB:build\temp.win-amd64-3.6\Release\src\TVDCondat2013.cp36-win_amd64.lib
-    LINK : error LNK2001: unresolved external symbol PyInit_TVDCondat2013
-    build\temp.win-amd64-3.6\Release\src\TVDCondat2013.cp36-win_amd64.lib : fatal error LNK1120: 1 unresolved externals
-    error: command 'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Tools\\MSVC\\14.14.26428\\bin\\HostX86\\x64\\link.exe' failed with exit status 1120
-    
-    ----------------------------------------
+Processing b:\dev_lsd\pycondat2013\tvdcondat2013
+Requirement already satisfied: pybind11>=2.0.1 in c:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages (from TVDCondat2013==0.0.1) (2.2.4)
+Requirement already satisfied: numpy in c:\users\s1675537\appdata\local\continuum\anaconda3\lib\site-packages (from TVDCondat2013==0.0.1) (1.15.2)
+Building wheels for collected packages: TVDCondat2013
+  Running setup.py bdist_wheel for TVDCondat2013: started
+  Running setup.py bdist_wheel for TVDCondat2013: finished with status 'done'
+  Stored in directory: C:\Users\s1675537\AppData\Local\Temp\pip-ephem-wheel-cache-s0p56d5k\wheels\4c\ba\60\c40b2a04bd64b2b8b5630540a1e94e8b0e27f1d1d55a72760c
+Successfully built TVDCondat2013
+Installing collected packages: TVDCondat2013
+  Found existing installation: TVDCondat2013 0.0.1
+    Uninstalling TVDCondat2013-0.0.1:
+      Successfully uninstalled TVDCondat2013-0.0.1
+Successfully installed TVDCondat2013-0.0.1

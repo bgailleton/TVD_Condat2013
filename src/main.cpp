@@ -12,12 +12,19 @@
 #include <numeric>
 #include <cmath>
 
+// #include "main.hpp"
+
 namespace py = pybind11;
 using namespace std;
 
+// xt::pyarray<double> D_TVD_R(xt::pyarray<double> tinput, double lambda);
+// xt::pyarray<double> TVD(xt::pyarray<double> tinput,  double lambda);
+
+
 
 // Code directly taken from Condat (2013)
-xt::pyarray<double> TVD(xt::pyarray<double> tinput,  double lambda) {
+xt::pyarray<double> TVD(xt::pyarray<double> tinput,  double lambda) 
+{
   
   unsigned int width = tinput.size();
 
@@ -164,11 +171,188 @@ xt::pyarray<double> TVD(xt::pyarray<double> tinput,  double lambda) {
   return output_2;
 }
 
+vector<double> _TV1D_denoise_v2(vector<double> input,  double lambda) {
 
+
+  unsigned int width = input.size();
+  vector<double> output(width);
+  vector<double> indstart_low(width);
+  vector<double> indstart_up(width);
+  unsigned int j_low = 0, j_up = 0, jseg = 0, indjseg = 0, i=1, indjseg2, ind;
+  double output_low_first = input[0]-lambda;
+  double output_low_curr = output_low_first;
+  double output_up_first = input[0]+lambda;
+  double output_up_curr = output_up_first;
+  double twolambda=2.0*lambda;
+  if (width==1) {output = input;}
+  else
+  {
+
+    indstart_low[0] = 0;
+    indstart_up[0] = 0;
+    width--;
+    for (; i<width; i++) {
+        if (input[i]>=output_low_curr) {
+          if (input[i]<=output_up_curr) {
+              output_up_curr+=(input[i]-output_up_curr)/(i-indstart_up[j_up]+1);
+              output[indjseg]=output_up_first;
+              while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+                output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+              if (j_up==jseg) {
+                while ((output_up_curr<=output_low_first)&&(jseg<j_low)) {
+                  indjseg2=indstart_low[++jseg];
+                output_up_curr+=(output_up_curr-output_low_first)*
+                  ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+                while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+                output_low_first=output[indjseg];
+                }
+              output_up_first=output_up_curr;
+              indstart_up[j_up=jseg]=indjseg;
+              } else output[indstart_up[j_up]]=output_up_curr;
+          } else
+              output_up_curr=output[i]=input[indstart_up[++j_up]=i];
+            output_low_curr+=(input[i]-output_low_curr)/(i-indstart_low[j_low]+1);
+            output[indjseg]=output_low_first;
+            while ((j_low>jseg)&&(output_low_curr>=output[ind=indstart_low[j_low-1]]))
+              output_low_curr+=(output[ind]-output_low_curr)*
+                  ((double)(indstart_low[j_low--]-ind)/(i-ind+1));
+            if (j_low==jseg) {
+              while ((output_low_curr>=output_up_first)&&(jseg<j_up)) {
+              indjseg2=indstart_up[++jseg];
+              output_low_curr+=(output_low_curr-output_up_first)*
+                ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+              while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+              output_up_first=output[indjseg];
+              }
+              if ((indstart_low[j_low=jseg]=indjseg)==i) output_low_first=output_up_first-twolambda;
+              else output_low_first=output_low_curr;
+            } else output[indstart_low[j_low]]=output_low_curr;
+        } else {
+            output_up_curr+=((output_low_curr=output[i]=input[indstart_low[++j_low] = i])-
+              output_up_curr)/(i-indstart_up[j_up]+1);
+            output[indjseg]=output_up_first;
+            while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+              output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+            if (j_up==jseg) {
+              while ((output_up_curr<=output_low_first)&&(jseg<j_low)) {
+              indjseg2=indstart_low[++jseg];
+              output_up_curr+=(output_up_curr-output_low_first)*
+                ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+              while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+              output_low_first=output[indjseg];
+              }
+            if ((indstart_up[j_up=jseg]=indjseg)==i) output_up_first=output_low_first+twolambda;
+            else output_up_first=output_up_curr;
+            } else output[indstart_up[j_up]]=output_up_curr;
+        }
+    }
+    /* here i==width (with value the actual width minus one) */
+    if (input[i]+lambda<=output_low_curr) {
+          while (jseg<j_low) {
+          indjseg2=indstart_low[++jseg];
+          while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+          output_low_first=output[indjseg];
+      }
+      while (indjseg<i) output[indjseg++]=output_low_first;
+        output[indjseg]=input[i]+lambda;
+    } else if (input[i]-lambda>=output_up_curr) {
+      while (jseg<j_up) {
+          indjseg2=indstart_up[++jseg];
+          while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+          output_up_first=output[indjseg];
+      }
+      while (indjseg<i) output[indjseg++]=output_up_first;
+        output[indjseg]=input[i]-lambda;
+    } else {
+          output_low_curr+=(input[i]+lambda-output_low_curr)/(i-indstart_low[j_low]+1);
+          output[indjseg]=output_low_first;
+          while ((j_low>jseg)&&(output_low_curr>=output[ind=indstart_low[j_low-1]]))
+            output_low_curr+=(output[ind]-output_low_curr)*
+                  ((double)(indstart_low[j_low--]-ind)/(i-ind+1));
+          if (j_low==jseg) {
+            if (output_up_first>=output_low_curr)
+              while (indjseg<=i) output[indjseg++]=output_low_curr;
+            else {
+              output_up_curr+=(input[i]-lambda-output_up_curr)/(i-indstart_up[j_up]+1);
+              output[indjseg]=output_up_first;
+              while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+                output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+              while (jseg<j_up) {
+              indjseg2=indstart_up[++jseg];
+              while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+              output_up_first=output[indjseg];
+              }
+              indjseg=indstart_up[j_up];
+              while (indjseg<=i) output[indjseg++]=output_up_curr;
+            }
+          } else {
+            while (jseg<j_low) {
+            indjseg2=indstart_low[++jseg];
+            while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+            output_low_first=output[indjseg];
+            }
+            indjseg=indstart_low[j_low];
+            while (indjseg<=i) output[indjseg++]=output_low_curr;
+          }
+    }
+  }
+  return output;
+}
+
+xt::pyarray<double> D_TVD_R(xt::pyarray<double> tinput, double lambda)
+{
+  int size = tinput.size();
+  vector<double> detrend(size), denoised(size), retrend(size);
+  double base_value = tinput[0];
+
+
+    // Avoiding some irregularities
+  // cout << "2" << endl;
+  double mean = 0;
+  size_t sample = size_t(size/100);
+  if(sample>10){sample=10;}
+  for(size_t k =0; k<sample;k++)
+  {
+    mean = mean + tinput[k]; 
+  }
+  mean = mean/sample;
+  base_value = mean;
+
+
+  // cout << "1" << endl;
+  // detrending
+  detrend[0] = base_value;
+  for(size_t i=1;i<size;i++)
+  {
+    detrend[i] = tinput[i] - tinput[i-1];
+  }
+
+
+  denoised = _TV1D_denoise_v2(detrend, lambda);
+  // cout << "4" << endl;
+
+  // retrending
+  for(size_t i=0;i<size;i++)
+  {
+    if(i==0){retrend[i] = base_value;}
+    else
+    {
+      retrend[i] = denoised[i] + retrend[i-1];
+      // cout << output[i] << endl;
+    }
+  }
+  // cout << "5" << endl;
+
+  // Done
+  auto output = xt::adapt(retrend);
+  return output;
+}
 
 
 // Python Module and Docstrings
-
 PYBIND11_MODULE(TVDCondat2013, m)
 {
     xt::import_numpy();
@@ -182,6 +366,8 @@ PYBIND11_MODULE(TVDCondat2013, m)
            :toctree: _generate
 
            TVD
+           D_TVD_R
     )pbdoc";
     m.def("TVD", TVD);
+    m.def("D_TVD_R", D_TVD_R);
 }

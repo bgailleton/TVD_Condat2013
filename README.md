@@ -15,58 +15,29 @@ This package is mostly to train myself packging a python package from `c++` but 
 Quick start
 ------------
 
-So far the denoising of a `numpy` array is implemented:
+So far the following denoising of a `numpy` array are implemented:
 
-*Quick use*
+*Quick use of the original denoising*
 ```
 from TVDCondat2013 import TVD
 ...
 denoised = TVD(MyNumpyArray,lambda_TVD)
 ...
+
 ```
 
 ![Effect of regulation parameter lambda on the TVD](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example.png)
 
-*Full example with plotting:*
-```
-import numpy as np
-from TVDCondat2013 import TVD
-from matplotlib import pyplot as plt
-
-
-# Generating n segments of a noisy signal
-size_segment = 400
-n_segments = 5
-C = np.random.rand(size_segment) + np.random.randint(-5,5)
-for d in range(n_segments-1):
-  A = np.random.rand(size_segment) + np.random.randint(-5,5)
-  C = np.concatenate((C,A))
-
-X = np.arange(n_segments*size_segment)
-
-plt.plot(X,C,color= 'r', lw = 0.2, zorder = 1, label= "Raw signal")
-
-# Setting the regulation parameters
-lambda_TVD = [0.1,1,10,100,1000]
-
-# Denoising with different lambda
-
-for l in lambda_TVD:
-  denoised = TVD(C,l)
-  plt.plot(X,denoised, lw = 1, zorder = 2, label= r"TVD $\lambda$ = %s"%(l))
-
-
-
-plt.xlabel("X")
-plt.ylabel("Signal")
-
-plt.legend()
-
-plt.savefig("Example.png", dpi = 500)
-
+*More experimental: curve denoising. So far the boundary condition might shift up or down the data. I am working on it*
 
 ```
+from TVDCondat2013 import D_TVD_R
+...
+curve_denoised = D_TVD_R((MyNumpyArray_of_curve,lambda_TVD))
+...
 
+```
+![Curve denoising](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example_curve.png)
 
 Installation
 ------------
