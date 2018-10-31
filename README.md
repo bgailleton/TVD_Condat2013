@@ -25,6 +25,8 @@ denoised = TVD(MyNumpyArray,lambda_TVD)
 ...
 ```
 
+![Effect of regulation parameter lambda on the TVD](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example.png)
+
 *Full example with plotting:*
 ```
 import numpy as np
@@ -64,9 +66,6 @@ plt.savefig("Example.png", dpi = 500)
 
 
 ```
-
-![TVD](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example.png)
-
 
 
 Installation
