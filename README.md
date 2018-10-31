@@ -1,7 +1,7 @@
 TVDCondat2013
 ==============
 
-TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using xtensor and py11 to bind c++ and numpy. 
+TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using xtensor and pybind11 to bind c++ and numpy. 
 
 The `c++` core code has been adapted from `C` version available on the website of the manuscript orignal authors: http://www.gipsa-lab.grenoble-inp.fr/~laurent.condat/publications.html
 *Cite it if you use it.*
@@ -16,25 +16,57 @@ Quick start
 ------------
 
 So far the denoising of a `numpy` array is implemented:
+
+*Quick use*
+```
+from TVDCondat2013 import TVD
+...
+denoised = TVD(MyNumpyArray,lambda_TVD)
+...
+```
+
+*Full example with plotting:*
 ```
 import numpy as np
 from TVDCondat2013 import TVD
+from matplotlib import pyplot as plt
 
-# Generating 2 segments of a noisy signal
-A = np.random.rand(100)
-B = np.random.rand(100) + 4
-C = np.concatenate((A,B))
+
+# Generating n segments of a noisy signal
+size_segment = 400
+n_segments = 5
+C = np.random.rand(size_segment) + np.random.randint(-5,5)
+for d in range(n_segments-1):
+  A = np.random.rand(size_segment) + np.random.randint(-5,5)
+  C = np.concatenate((C,A))
+
+X = np.arange(n_segments*size_segment)
+
+plt.plot(X,C,color= 'r', lw = 0.2, zorder = 1, label= "Raw signal")
 
 # Setting the regulation parameters
-lambda_TVD = 5
+lambda_TVD = [0.1,1,10,100,1000]
 
-# Denoising
-denoised = TVD(C,lambda_TVD)
+# Denoising with different lambda
 
-# Done
+for l in lambda_TVD:
+  denoised = TVD(C,l)
+  plt.plot(X,denoised, lw = 1, zorder = 2, label= "TVD l = %s"%(l))
+
+
+
+plt.xlabel("X")
+plt.ylabel("Signal")
+
+plt.legend()
+
+plt.savefig("Example.png", dpi = 500)
 
 
 ```
+
+
+
 
 
 Installation
