@@ -17,7 +17,7 @@ Quick start
 
 So far the following denoising of a `numpy` array are implemented:
 
-*Quick use of the original denoising*
+**Quick use of the original denoising**
 ```
 from TVDCondat2013 import TVD
 ...
@@ -28,7 +28,7 @@ denoised = TVD(MyNumpyArray,lambda_TVD)
 
 ![Effect of regulation parameter lambda on the TVD](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example.png)
 
-*More experimental: curve denoising. So far the boundary condition might shift up or down the data. I am working on it*
+**More experimental: curve denoising. So far the boundary condition might shift up or down the data. I am working on it**
 
 ```
 from TVDCondat2013 import D_TVD_R
@@ -38,6 +38,8 @@ curve_denoised = D_TVD_R((MyNumpyArray_of_curve,lambda_TVD))
 
 ```
 ![Curve denoising](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example_curve.png)
+
+More working examples in the `examples` folder.
 
 Installation
 ------------
