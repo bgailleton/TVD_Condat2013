@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 from TVDCondat2013 import TVD, D_TVD_R
 from matplotlib import pyplot as plt
