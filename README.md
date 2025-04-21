@@ -1,9 +1,11 @@
 TVDCondat2013
 ==============
 
+*UPDATE 2025* : Still using that code as is, I updated the references and I am now preparing a `pip` package precompiled for Window/Mac/Linux. I'm also updating the method to a more optimised version. 
+
 TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using xtensor and pybind11 to bind c++ and numpy. 
 
-The `c++` core code has been adapted from `C` version available on the website of the manuscript orignal authors: http://www.gipsa-lab.grenoble-inp.fr/~laurent.condat/publications.html
+The `c++` core code has been adapted from `C` version available on the website of the manuscript orignal authors: [The Paper](https://lcondat.github.io/publis/Condat-fast_TV-SPL-2013.pdf)
 *Cite it if you use it.*
 
 This package is mostly to train myself packging a python package from `c++` but also it is a really useful and efficient algorithm for:
