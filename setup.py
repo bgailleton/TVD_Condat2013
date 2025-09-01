@@ -75,7 +75,7 @@ def cpp_flag(compiler):
     if has_flag(compiler, '-std=c++14'):
         return '-std=c++14'
     else:
-        raise RuntimeError('C++14 support is required by xtensor!')
+        raise RuntimeError('C++14 support is required')
 
 
 class BuildExt(build_ext):
@@ -108,10 +108,11 @@ setup(
     author='Boris Gailleton',
     author_email='b.gailleton@sms.ed.ac.uk',
     url='https://github.com/bgailleton/TVDCondat2013',
-    description= 'TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: "A Direct Algorithm for 1D Total Variation Denoising" (Sign. Proc. Letters) using xtensor and py11 to bind c++ and numpy.',
+    description= 'TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: "A Direct Algorithm for 1D Total Variation Denoising" (Sign. Proc. Letters) using pybind11 to bind C++ and NumPy.',
     long_description='',
     ext_modules=ext_modules,
-    install_requires=['pybind11>=2.0.1', 'numpy'],
+    setup_requires=['pybind11>=2.0.1', 'numpy'],
+    install_requires=['numpy'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )

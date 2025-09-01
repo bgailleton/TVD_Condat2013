@@ -1,8 +1,11 @@
 *.egg-info/
+.eggs/
 .ipynb_checkpoints/
 dist/
 build/
 *.py[cod]
+*.so
+tmp/
 
 # OS X
 .DS_Store
