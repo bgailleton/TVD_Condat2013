@@ -30,7 +30,7 @@ denoised = TVD(MyNumpyArray,lambda_TVD)
 
 ```
 
-![Effect of regulation parameter lambda on the TVD](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example.png)
+Run `python examples/example_readme.py` to generate a figure comparing the original, noisy, and TVD-denoised signals. The script builds a piecewise-constant signal, corrupts it with Gaussian noise, denoises it with TVD, and plots the three signals in aligned subplots, saving the result as `examples/Example.png`.
 
 **More experimental: curve denoising. So far the boundary condition might shift up or down the data. I am working on it**
 
@@ -41,7 +41,6 @@ curve_denoised = D_TVD_R((MyNumpyArray_of_curve,lambda_TVD))
 ...
 
 ```
-![Curve denoising](https://raw.githubusercontent.com/bgailleton/TVD_Condat2013/master/examples/Example_curve.png)
 
 More working examples in the `examples` folder.
 
