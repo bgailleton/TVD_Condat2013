@@ -1,29 +1,52 @@
-import TVDCondat2013 as m
-from unittest import TestCase
+import numpy as np
+"""Smoke tests for the TVDCondat2013 extension."""
+
+import os
+import sys
 import numpy as np
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import TVDCondat2013 as tvd
 
-class ExampleTest(TestCase):
 
-    def test_example1(self):
-        self.assertEqual(4, m.example1([4, 5, 6]))
+def test_tvd_preserves_dtype_and_values():
+    """Lambda zero should yield an identical array with the same dtype."""
+    x32 = np.array([0, 1, 2, 3], dtype=np.float32)
+    y32 = tvd.TVD(x32, np.float32(0.0))
+    assert y32.dtype == np.float32
+    np.testing.assert_array_equal(y32, x32)
 
-    def test_example2(self):
-        x = np.array([[0., 1.], [2., 3.]])
-        res = np.array([[2., 3.], [4., 5.]])
-        y = m.example2(x)
-        np.testing.assert_allclose(y, res, 1e-12)
+    x64 = np.array([0.0, 1.0, 2.0, 3.0], dtype=np.float64)
+    y64 = tvd.TVD(x64, 0.0)
+    assert y64.dtype == np.float64
+    np.testing.assert_array_equal(y64, x64)
 
-    def test_vectorize(self):
-        x1 = np.array([[0, 1], [2, 3]])
-        x2 = np.array([0, 1])
-        res = np.array([[ 1.               ,  1.381773290676036],
-                        [ 1.909297426825682,  0.681422313928007]])
-        y = m.vectorize_example1(x1, x2)
-        np.testing.assert_allclose(y, res, 1e-12)
 
-    def test_readme_example1(self):
-        v = np.arange(15).reshape(3, 5)
-        y = m.readme_example1(v)
-        np.testing.assert_allclose(y, 1.2853996391883833, 1e-12)
+def test_dtvd_r_preserves_dtype():
+    """The detrend/denoise/retrend helper should keep the input dtype."""
+    x32 = np.linspace(0, 1, 5, dtype=np.float32)
+    y32 = tvd.D_TVD_R(x32, np.float32(0.0))
+    assert y32.dtype == np.float32
+    np.testing.assert_array_almost_equal(y32, x32)
+
+    x64 = np.linspace(0, 1, 5, dtype=np.float64)
+    y64 = tvd.D_TVD_R(x64, 0.0)
+    assert y64.dtype == np.float64
+    np.testing.assert_array_almost_equal(y64, x64)
+
+
+def _total_variation(arr: np.ndarray) -> float:
+    """Compute the total variation of a 1-D array."""
+    return np.sum(np.abs(np.diff(arr)))
+
+
+def test_tvd_reduces_variation():
+    """Denoising should not increase total variation."""
+    x32 = np.array([0, 2, 1, 3, 0], dtype=np.float32)
+    y32 = tvd.TVD(x32, np.float32(0.5))
+    assert _total_variation(y32) <= _total_variation(x32) + 1e-6
+
+    x64 = np.array([0, 2, 1, 3, 0], dtype=np.float64)
+    y64 = tvd.TVD(x64, 0.5)
+    assert _total_variation(y64) <= _total_variation(x64) + 1e-12
 

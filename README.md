@@ -3,7 +3,7 @@ TVDCondat2013
 
 *UPDATE 2025* : Still using that code as is, I updated the references and I am now preparing a `pip` package precompiled for Window/Mac/Linux. I'm also updating the method to a more optimised version. 
 
-TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using xtensor and pybind11 to bind c++ and numpy. 
+TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using pybind11 to bind C++ and NumPy directly.
 
 The `c++` core code has been adapted from `C` version available on the website of the manuscript orignal authors: [The Paper](https://lcondat.github.io/publis/Condat-fast_TV-SPL-2013.pdf)
 *Cite it if you use it.*
@@ -48,8 +48,7 @@ More working examples in the `examples` folder.
 Installation
 ------------
 
-This guide is directly from `xtensor` documentation, let me know if this doesn't work.
-I am working on developping a `pip` and a `conda` package at point.
+I am working on developing a `pip` and a `conda` package at point.
 
 **On Unix (Linux, OS X)**
 
@@ -63,7 +62,7 @@ I am working on developping a `pip` and a `conda` package at point.
      - `pip install ./TVDCondat2013`
  - For earlier versions of Python, including Python 2.7:
 
-   xtensor requires a C++14 compliant compiler (i.e. Visual Studio 2015 on
+   Building requires a C++14 compliant compiler (i.e. Visual Studio 2015 on
    Windows). Running a regular `pip install` command will detect the version
    of the compiler used to build Python and attempt to build the extension
    with it. We must force the use of Visual Studio 2015.
