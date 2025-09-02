@@ -8,9 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 def test_extension_imports():
-    """The module should expose both TVD functions."""
+    """The module should expose both TVD variants."""
     module = importlib.import_module('TVDCondat2013')
-    assert hasattr(module, 'TVD')
-    assert hasattr(module, 'D_TVD_R')
-    assert hasattr(module, 'TVD_v2')
-    assert hasattr(module, 'D_TVD_R_v2')
+    assert hasattr(module, 'tvd_2013')
+    assert hasattr(module, 'tvd_2017')
