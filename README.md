@@ -25,10 +25,10 @@ So far the following denoising of a `numpy` array are implemented. Both the
 original 2013 algorithm and the faster 2017 variant are exposed:
 
 ```
-from TVDCondat2013 import TVD, TVD_v2
+from TVDCondat2013 import tvd_2013, tvd_2017
 ...
-denoised_v1 = TVD(MyNumpyArray, lambda_TVD)       # 2013 algorithm
-denoised_v2 = TVD_v2(MyNumpyArray, lambda_TVD)    # 2017 algorithm
+denoised_v1 = tvd_2013(MyNumpyArray, lambda_TVD)       # 2013 algorithm
+denoised_v2 = tvd_2017(MyNumpyArray, lambda_TVD)       # 2017 algorithm
 ...
 
 ```
@@ -36,20 +36,8 @@ denoised_v2 = TVD_v2(MyNumpyArray, lambda_TVD)    # 2017 algorithm
 Run `python examples/example_readme.py` to generate a figure comparing the
 original, noisy, and denoised signals using both algorithms. The script builds a
 piecewise-constant signal, corrupts it with Gaussian noise, denoises it with
-``TVD`` and ``TVD_v2``, and plots the results in aligned subplots, saving the
-figure as `examples/Example.png`.
-
-**More experimental: curve denoising. So far the boundary condition might shift
-up or down the data. I am working on it**
-
-```
-from TVDCondat2013 import D_TVD_R, D_TVD_R_v2
-...
-curve_denoised_v1 = D_TVD_R(MyNumpyArray_of_curve, lambda_TVD)
-curve_denoised_v2 = D_TVD_R_v2(MyNumpyArray_of_curve, lambda_TVD)
-...
-
-```
+``tvd_2013`` and ``tvd_2017``, and plots the results in aligned subplots, saving
+the figure as `examples/Example.png`.
 
 More working examples in the `examples` folder.
 

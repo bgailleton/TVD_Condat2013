@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
 
-from TVDCondat2013 import TVD, TVD_v2
+from TVDCondat2013 import tvd_2013, tvd_2017
 
 
 def main() -> None:
@@ -28,8 +28,8 @@ def main() -> None:
 
     # Denoise the 1-D signal with a reasonable lambda
     lambda_tvd = 10.0
-    denoised_v1 = TVD(noisy, lambda_tvd)
-    denoised_v2 = TVD_v2(noisy, lambda_tvd)
+    denoised_v1 = tvd_2013(noisy, lambda_tvd)
+    denoised_v2 = tvd_2017(noisy, lambda_tvd)
 
     # ------------------------------------------------------------------
     # Plot original, noisy, and denoised signals in separate panels
@@ -47,12 +47,12 @@ def main() -> None:
 
     axes[2].plot(x, denoised_v1, color="C1", lw=1.5)
     axes[2].set_ylabel("Amplitude")
-    axes[2].set_title(f"TVD (lambda={lambda_tvd})")
+    axes[2].set_title(f"tvd_2013 (lambda={lambda_tvd})")
 
     axes[3].plot(x, denoised_v2, color="C2", lw=1.5)
     axes[3].set_xlabel("Sample")
     axes[3].set_ylabel("Amplitude")
-    axes[3].set_title(f"TVD_v2 (lambda={lambda_tvd})")
+    axes[3].set_title(f"tvd_2017 (lambda={lambda_tvd})")
 
     fig.tight_layout()
     output_path = Path(__file__).with_name("Example.png")

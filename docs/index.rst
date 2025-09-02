@@ -6,9 +6,9 @@ Laurent Condat's algorithms. The core is written in C++ and exposed to Python
 through pybind11, offering a tiny, dependency‑free extension.  Two
 implementations are available:
 
-* ``TVD`` and ``D_TVD_R`` — direct ports of the 2013 algorithm.
-* ``TVD_v2`` and ``D_TVD_R_v2`` — an accelerated variant derived from Condat's
-  2017 work with improved convergence on large signals.
+* ``tvd_2013`` — direct port of the 2013 algorithm.
+* ``tvd_2017`` — an accelerated variant derived from Condat's 2017 work with
+  improved convergence on large signals.
 
 Quick start
 -----------
@@ -16,15 +16,14 @@ Quick start
 .. code-block:: python
 
     import numpy as np
-    from TVDCondat2013 import TVD, TVD_v2
+    from TVDCondat2013 import tvd_2013, tvd_2017
 
     noisy = np.random.randn(100)
-    denoised = TVD(noisy, 10.0)       # 2013 algorithm
-    denoised_v2 = TVD_v2(noisy, 10.0) # 2017 algorithm
+    denoised = tvd_2013(noisy, 10.0)      # 2013 algorithm
+    denoised_fast = tvd_2017(noisy, 10.0) # 2017 algorithm
 
-``D_TVD_R`` and ``D_TVD_R_v2`` offer the same pair of algorithms for the
-detrend–denoise–retrend workflow.  See the :doc:`api` reference for the complete
-list of functions and their arguments.
+See the :doc:`api` reference for the complete list of functions and their
+arguments.
 
 References
 ----------

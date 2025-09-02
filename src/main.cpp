@@ -506,7 +506,7 @@ void tv1d_denoise_v2(const T *input, T *output, unsigned int width, T lambda)
  * The input array is copied into a contiguous buffer (if required), passed to
  * the core implementation and the denoised result is returned as a new
  * NumPy array.  The function preserves the dtype of the input array and is
- * exposed to Python as ``TVD``.
+ * exposed to Python as ``tvd_2013``.
  *
  * @tparam T    Floating point type (float or double).
  * @param in    1‑D NumPy array containing the noisy signal.
@@ -514,8 +514,8 @@ void tv1d_denoise_v2(const T *input, T *output, unsigned int width, T lambda)
  * @returns     New NumPy array with the denoised signal.
  */
 template <typename T>
-py::array_t<T> TVD(py::array_t<T, py::array::c_style | py::array::forcecast> in,
-                   double lambda)
+py::array_t<T> tvd_2013(py::array_t<T, py::array::c_style | py::array::forcecast> in,
+                        double lambda)
 {
     auto buf = in.request();
     auto n = static_cast<unsigned int>(buf.size);
@@ -528,13 +528,13 @@ py::array_t<T> TVD(py::array_t<T, py::array::c_style | py::array::forcecast> in,
 /**
  * @brief Wrapper for the revised 2017 denoising algorithm.
  *
- * This function behaves identically to :func:`TVD` but calls the ``v2``
+ * This function behaves identically to :func:`tvd_2013` but calls the ``v2``
  * implementation which trades a small amount of precision for improved
  * performance.  Both single and double precision signals are supported.
  */
 template <typename T>
-py::array_t<T> TVD_v2(py::array_t<T, py::array::c_style | py::array::forcecast> in,
-                      double lambda)
+py::array_t<T> tvd_2017(py::array_t<T, py::array::c_style | py::array::forcecast> in,
+                        double lambda)
 {
     auto buf = in.request();
     auto n = static_cast<unsigned int>(buf.size);
@@ -544,100 +544,7 @@ py::array_t<T> TVD_v2(py::array_t<T, py::array::c_style | py::array::forcecast> 
     return result;
 }
 
-/**
- * @brief Detrend‑denoise‑retrend helper.
- *
- * Some signals (e.g. cumulative quantities) are better processed by first
- * taking the discrete derivative, applying total‑variation denoising and then
- * reintegrating the result.  This helper performs these three steps and
- * returns the reconstructed signal.
- */
-template <typename T>
-py::array_t<T> D_TVD_R(py::array_t<T, py::array::c_style | py::array::forcecast> in,
-                        double lambda)
-{
-    auto buf = in.request();
-    auto n = static_cast<unsigned int>(buf.size);
-    const T *data = static_cast<T *>(buf.ptr);
-
-    std::vector<T> detrend(n), denoised(n);
-
-    T base_value = data[0];
-    T mean = 0;
-    size_t sample = static_cast<size_t>(n / 100);
-    if (sample < 1)
-        sample = 1;
-    else if (sample > 10)
-        sample = 10;
-    for (size_t k = 0; k < sample; ++k)
-        mean += data[k];
-    mean /= static_cast<T>(sample);
-    base_value = mean;
-
-    detrend[0] = base_value;
-    for (unsigned int idx = 1; idx < n; ++idx)
-        detrend[idx] = data[idx] - data[idx - 1];
-
-    tv1d_denoise(detrend.data(), denoised.data(), n, static_cast<T>(lambda));
-
-    py::array_t<T> result(n);
-    T *out = result.mutable_data();
-    for (unsigned int idx = 0; idx < n; ++idx)
-    {
-        if (idx == 0)
-            out[idx] = base_value;
-        else
-            out[idx] = denoised[idx] + out[idx - 1];
-    }
-    return result;
-}
-
-/**
- * @brief Variant of :func:`D_TVD_R` using the 2017 algorithm.
- */
-template <typename T>
-py::array_t<T> D_TVD_R_v2(py::array_t<T, py::array::c_style | py::array::forcecast> in,
-                           double lambda)
-{
-    auto buf = in.request();
-    auto n = static_cast<unsigned int>(buf.size);
-    const T *data = static_cast<T *>(buf.ptr);
-
-    std::vector<T> detrend(n), denoised(n);
-
-    T base_value = data[0];
-    T mean = 0;
-    size_t sample = static_cast<size_t>(n / 100);
-    if (sample < 1)
-        sample = 1;
-    else if (sample > 10)
-        sample = 10;
-    for (size_t k = 0; k < sample; ++k)
-        mean += data[k];
-    mean /= static_cast<T>(sample);
-    base_value = mean;
-
-    detrend[0] = base_value;
-    for (unsigned int idx = 1; idx < n; ++idx)
-        detrend[idx] = data[idx] - data[idx - 1];
-
-    tv1d_denoise_v2(detrend.data(), denoised.data(), n,
-                     static_cast<T>(lambda));
-
-    py::array_t<T> result(n);
-    T *out = result.mutable_data();
-    for (unsigned int idx = 0; idx < n; ++idx)
-    {
-        if (idx == 0)
-            out[idx] = base_value;
-        else
-            out[idx] = denoised[idx] + out[idx - 1];
-    }
-    return result;
-}
-
 } // namespace tvd
-
 PYBIND11_MODULE(TVDCondat2013, m)
 {
     // Module level documentation with references to the original publications
@@ -661,33 +568,14 @@ PYBIND11_MODULE(TVDCondat2013, m)
         :rtype: numpy.ndarray
     )pbdoc";
 
-    const char *dtvdr_doc = R"pbdoc(
-        Detrend, denoise and retrend a cumulative signal.
-
-        :param numpy.ndarray signal: Input 1-D signal to process.
-        :param float lambda: Regularisation parameter for the TVD step.
-        :returns: Smoothed signal obtained after detrend-denoise-retrend.
-        :rtype: numpy.ndarray
-    )pbdoc";
-
-    m.def("TVD", &tvd::TVD<double>, py::arg("signal").noconvert(),
+    m.def("tvd_2013", &tvd::tvd_2013<double>, py::arg("signal").noconvert(),
           py::arg("lambda"), tvd_doc);
-    m.def("TVD", &tvd::TVD<float>, py::arg("signal").noconvert(),
+    m.def("tvd_2013", &tvd::tvd_2013<float>, py::arg("signal").noconvert(),
           py::arg("lambda"), tvd_doc);
 
-    m.def("D_TVD_R", &tvd::D_TVD_R<double>, py::arg("signal").noconvert(),
-          py::arg("lambda"), dtvdr_doc);
-    m.def("D_TVD_R", &tvd::D_TVD_R<float>, py::arg("signal").noconvert(),
-          py::arg("lambda"), dtvdr_doc);
-
-    m.def("TVD_v2", &tvd::TVD_v2<double>, py::arg("signal").noconvert(),
+    m.def("tvd_2017", &tvd::tvd_2017<double>, py::arg("signal").noconvert(),
           py::arg("lambda"), tvd_doc);
-    m.def("TVD_v2", &tvd::TVD_v2<float>, py::arg("signal").noconvert(),
+    m.def("tvd_2017", &tvd::tvd_2017<float>, py::arg("signal").noconvert(),
           py::arg("lambda"), tvd_doc);
-
-    m.def("D_TVD_R_v2", &tvd::D_TVD_R_v2<double>,
-          py::arg("signal").noconvert(), py::arg("lambda"), dtvdr_doc);
-    m.def("D_TVD_R_v2", &tvd::D_TVD_R_v2<float>,
-          py::arg("signal").noconvert(), py::arg("lambda"), dtvdr_doc);
 }
 
