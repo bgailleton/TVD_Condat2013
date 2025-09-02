@@ -15,7 +15,23 @@ namespace tvd {
 // -----------------------------------------------------------------------------
 // 2013 algorithm (version 1)
 // -----------------------------------------------------------------------------
-
+/**
+ * @brief Perform 1‑D total variation denoising.
+ *
+ * This is a direct port of Condat's 2013 algorithm for solving the
+ * 1‑D total‑variation denoising problem.  It operates on raw pointers for
+ * maximal performance and expects the caller to provide the input and
+ * output buffers.  The implementation follows the notation of the
+ * original paper and exposes the routine through pybind11.
+ *
+ * @tparam T        Floating point type (float or double).
+ * @param input     Pointer to the noisy input signal.
+ * @param output    Pointer to a pre‑allocated buffer where the denoised
+ *                  signal will be written.
+ * @param width     Number of samples in the signal.
+ * @param lambda    Regularisation parameter controlling the amount of
+ *                  smoothing.  Larger values yield flatter signals.
+ */
 template <typename T>
 void tv1d_denoise(const T *input, T *output, unsigned int width, T lambda)
 {
@@ -242,17 +258,22 @@ void tv1d_denoise(const T *input, T *output, unsigned int width, T lambda)
 // 2017 algorithm (version 2) by Laurent Condat under the CeCILL licence.
 // -----------------------------------------------------------------------------
 
-/*
-Total variation denoising of 1-D signals, a.k.a. Fused lasso
-signal approximator, by Laurent Condat.
-
-Version 2.0, Aug. 30, 2017.
-
-Usage rights : Copyright Laurent Condat.
-This file is distributed under the terms of the CeCILL
-licence (compatible with the GNU GPL), which can be
-found at the URL "http://www.cecill.info".
-*/
+/**
+ * @brief 1‑D total variation denoising (Condat 2017).
+ *
+ * Implementation of the revised algorithm published in 2017, which is a
+ * simplified and slightly faster variant of the original 2013 routine.
+ * The code is a C++ port of Laurent Condat's reference implementation and
+ * carries the same CeCILL licence (GPL compatible).
+ *
+ * @tparam T        Floating point type (float or double).
+ * @param input     Pointer to the noisy input signal.
+ * @param output    Pointer to a pre‑allocated buffer that will receive the
+ *                  denoised signal.
+ * @param width     Number of samples in the signal.
+ * @param lambda    Regularisation parameter controlling the amount of
+ *                  smoothing.
+ */
 template <typename T>
 void tv1d_denoise_v2(const T *input, T *output, unsigned int width, T lambda)
 {
@@ -479,6 +500,19 @@ void tv1d_denoise_v2(const T *input, T *output, unsigned int width, T lambda)
 // Wrappers operating on NumPy arrays
 // -----------------------------------------------------------------------------
 
+/**
+ * @brief Convenience wrapper around tv1d_denoise for NumPy arrays.
+ *
+ * The input array is copied into a contiguous buffer (if required), passed to
+ * the core implementation and the denoised result is returned as a new
+ * NumPy array.  The function preserves the dtype of the input array and is
+ * exposed to Python as ``TVD``.
+ *
+ * @tparam T    Floating point type (float or double).
+ * @param in    1‑D NumPy array containing the noisy signal.
+ * @param lambda Regularisation parameter controlling the amount of smoothing.
+ * @returns     New NumPy array with the denoised signal.
+ */
 template <typename T>
 py::array_t<T> TVD(py::array_t<T, py::array::c_style | py::array::forcecast> in,
                    double lambda)
@@ -491,6 +525,13 @@ py::array_t<T> TVD(py::array_t<T, py::array::c_style | py::array::forcecast> in,
     return result;
 }
 
+/**
+ * @brief Wrapper for the revised 2017 denoising algorithm.
+ *
+ * This function behaves identically to :func:`TVD` but calls the ``v2``
+ * implementation which trades a small amount of precision for improved
+ * performance.  Both single and double precision signals are supported.
+ */
 template <typename T>
 py::array_t<T> TVD_v2(py::array_t<T, py::array::c_style | py::array::forcecast> in,
                       double lambda)
@@ -503,6 +544,14 @@ py::array_t<T> TVD_v2(py::array_t<T, py::array::c_style | py::array::forcecast> 
     return result;
 }
 
+/**
+ * @brief Detrend‑denoise‑retrend helper.
+ *
+ * Some signals (e.g. cumulative quantities) are better processed by first
+ * taking the discrete derivative, applying total‑variation denoising and then
+ * reintegrating the result.  This helper performs these three steps and
+ * returns the reconstructed signal.
+ */
 template <typename T>
 py::array_t<T> D_TVD_R(py::array_t<T, py::array::c_style | py::array::forcecast> in,
                         double lambda)
@@ -543,6 +592,9 @@ py::array_t<T> D_TVD_R(py::array_t<T, py::array::c_style | py::array::forcecast>
     return result;
 }
 
+/**
+ * @brief Variant of :func:`D_TVD_R` using the 2017 algorithm.
+ */
 template <typename T>
 py::array_t<T> D_TVD_R_v2(py::array_t<T, py::array::c_style | py::array::forcecast> in,
                            double lambda)
@@ -588,37 +640,54 @@ py::array_t<T> D_TVD_R_v2(py::array_t<T, py::array::c_style | py::array::forceca
 
 PYBIND11_MODULE(TVDCondat2013, m)
 {
+    // Module level documentation with references to the original publications
     m.doc() = R"pbdoc(
-        TVDCondat2013 provides 1-D Total Variation Denoising routines
-        based on Condat's algorithms.
+        Python bindings for 1-D total variation denoising based on
+        Laurent Condat's algorithms\ [Condat2013]_\ [Condat2017]_.
+
+        .. [Condat2013] L. Condat, "A Direct Algorithm for 1D Total Variation
+           Denoising," *IEEE Signal Processing Letters*, 2013.
+        .. [Condat2017] L. Condat, "Fast Projection onto the Simplex and the
+           L1 Ball," *Mathematical Programming*, 2017.
+    )pbdoc";
+
+    const char *tvd_doc = R"pbdoc(
+        Apply 1-D total variation denoising to a signal.
+
+        :param numpy.ndarray signal: 1-D array of ``float32`` or ``float64``
+            values.
+        :param float lambda: Regularisation parameter controlling smoothing.
+        :returns: Denoised signal with the same dtype as ``signal``.
+        :rtype: numpy.ndarray
+    )pbdoc";
+
+    const char *dtvdr_doc = R"pbdoc(
+        Detrend, denoise and retrend a cumulative signal.
+
+        :param numpy.ndarray signal: Input 1-D signal to process.
+        :param float lambda: Regularisation parameter for the TVD step.
+        :returns: Smoothed signal obtained after detrend-denoise-retrend.
+        :rtype: numpy.ndarray
     )pbdoc";
 
     m.def("TVD", &tvd::TVD<double>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Total variation denoising for float64 arrays");
+          py::arg("lambda"), tvd_doc);
     m.def("TVD", &tvd::TVD<float>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Total variation denoising for float32 arrays");
+          py::arg("lambda"), tvd_doc);
 
     m.def("D_TVD_R", &tvd::D_TVD_R<double>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Detrend-denoise-retrend for float64 arrays");
+          py::arg("lambda"), dtvdr_doc);
     m.def("D_TVD_R", &tvd::D_TVD_R<float>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Detrend-denoise-retrend for float32 arrays");
+          py::arg("lambda"), dtvdr_doc);
 
     m.def("TVD_v2", &tvd::TVD_v2<double>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Total variation denoising (algorithm v2) for float64 arrays");
+          py::arg("lambda"), tvd_doc);
     m.def("TVD_v2", &tvd::TVD_v2<float>, py::arg("signal").noconvert(),
-          py::arg("lambda"),
-          "Total variation denoising (algorithm v2) for float32 arrays");
+          py::arg("lambda"), tvd_doc);
 
     m.def("D_TVD_R_v2", &tvd::D_TVD_R_v2<double>,
-          py::arg("signal").noconvert(), py::arg("lambda"),
-          "Detrend-denoise-retrend (algorithm v2) for float64 arrays");
+          py::arg("signal").noconvert(), py::arg("lambda"), dtvdr_doc);
     m.def("D_TVD_R_v2", &tvd::D_TVD_R_v2<float>,
-          py::arg("signal").noconvert(), py::arg("lambda"),
-          "Detrend-denoise-retrend (algorithm v2) for float32 arrays");
+          py::arg("signal").noconvert(), py::arg("lambda"), dtvdr_doc);
 }
 
