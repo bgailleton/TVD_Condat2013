@@ -21,23 +21,26 @@ This work
 Quick start
 ------------
 
-So far the following denoising of a `numpy` array are implemented. Both the
-original 2013 algorithm and the faster 2017 variant are exposed:
+So far the following denoising of a `numpy` array are implemented. The
+original 2013 algorithm, the faster 2017 variant, a taut string algorithm, and
+a fused lasso variant with an additional :math:`\ell_1` penalty are exposed:
 
 ```
-from TVDCondat2013 import tvd_2013, tvd_2017
+from TVDCondat2013 import fused_lasso, tvd_2013, tvd_2017, tvd_tautstring
 ...
 denoised_v1 = tvd_2013(MyNumpyArray, lambda_TVD)       # 2013 algorithm
 denoised_v2 = tvd_2017(MyNumpyArray, lambda_TVD)       # 2017 algorithm
+denoised_ts = tvd_tautstring(MyNumpyArray, lambda_TVD) # taut string
+denoised_fl = fused_lasso(MyNumpyArray, lambda_TVD, mu_L1) # fused lasso
 ...
 
 ```
 
 Run `python examples/example_readme.py` to generate a figure comparing the
-original, noisy, and denoised signals using both algorithms. The script builds a
+original, noisy, and denoised signals using all algorithms. The script builds a
 piecewise-constant signal, corrupts it with Gaussian noise, denoises it with
-``tvd_2013`` and ``tvd_2017``, and plots the results in aligned subplots, saving
-the figure as `examples/Example.png`.
+``tvd_2013``, ``tvd_2017``, ``tvd_tautstring`` and ``fused_lasso``, and plots
+the results in aligned subplots, saving the figure as `examples/Example.png`.
 
 More working examples in the `examples` folder.
 
@@ -117,3 +120,9 @@ Running the tests requires `pytest`.
 ```bash
 py.test .
 ```
+
+Copyright
+---------
+
+Portions of this software are Copyright (c) 2013-2025 Laurent Condat.
+The taut string algorithm is adapted from Matlab code by Lutz Dümbgen.
