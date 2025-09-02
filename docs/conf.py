@@ -112,9 +112,10 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'alabaster'
+# The theme to use for HTML pages.  ``furo`` provides a clean, responsive
+# layout without additional configuration and gives the documentation a more
+# modern appearance.
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

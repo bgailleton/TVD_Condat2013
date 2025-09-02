@@ -1,7 +1,8 @@
 """Example illustrating 1D denoising with :mod:`TVDCondat2013`.
 
 The script generates a piecewise-constant signal, corrupts it with Gaussian
-noise, denoises it, and saves a figure comparing the three signals.
+noise, denoises it with both available algorithms, and saves a figure comparing
+the results.
 """
 
 import matplotlib
@@ -11,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
 
-from TVDCondat2013 import TVD
+from TVDCondat2013 import TVD, TVD_v2
 
 
 def main() -> None:
@@ -27,13 +28,14 @@ def main() -> None:
 
     # Denoise the 1-D signal with a reasonable lambda
     lambda_tvd = 10.0
-    denoised = TVD(noisy, lambda_tvd)
+    denoised_v1 = TVD(noisy, lambda_tvd)
+    denoised_v2 = TVD_v2(noisy, lambda_tvd)
 
     # ------------------------------------------------------------------
     # Plot original, noisy, and denoised signals in separate panels
     # ------------------------------------------------------------------
     x = np.arange(clean.size)
-    fig, axes = plt.subplots(3, 1, sharex=True, figsize=(8, 6))
+    fig, axes = plt.subplots(4, 1, sharex=True, figsize=(8, 8))
 
     axes[0].plot(x, clean, color="k", lw=1)
     axes[0].set_ylabel("Amplitude")
@@ -43,10 +45,14 @@ def main() -> None:
     axes[1].set_ylabel("Amplitude")
     axes[1].set_title("Noisy signal")
 
-    axes[2].plot(x, denoised, color="C1", lw=1.5)
-    axes[2].set_xlabel("Sample")
+    axes[2].plot(x, denoised_v1, color="C1", lw=1.5)
     axes[2].set_ylabel("Amplitude")
-    axes[2].set_title(f"Denoised with TVD (lambda={lambda_tvd})")
+    axes[2].set_title(f"TVD (lambda={lambda_tvd})")
+
+    axes[3].plot(x, denoised_v2, color="C2", lw=1.5)
+    axes[3].set_xlabel("Sample")
+    axes[3].set_ylabel("Amplitude")
+    axes[3].set_title(f"TVD_v2 (lambda={lambda_tvd})")
 
     fig.tight_layout()
     output_path = Path(__file__).with_name("Example.png")
