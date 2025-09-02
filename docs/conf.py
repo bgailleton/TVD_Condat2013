@@ -112,10 +112,17 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML pages.  ``furo`` provides a clean, responsive
-# layout without additional configuration and gives the documentation a more
-# modern appearance.
-html_theme = "furo"
+# The theme to use for HTML pages. ``furo`` provides a clean, responsive layout
+# without additional configuration and gives the documentation a more modern
+# appearance. If the theme is not available (for example, when building the
+# documentation in environments where the optional dependency is not
+# installed), fall back to the Sphinx default theme so that documentation
+# generation still succeeds.
+try:
+    import furo  # noqa: F401
+    html_theme = "furo"
+except Exception:  # pragma: no cover - best effort for optional dependency
+    html_theme = "alabaster"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
