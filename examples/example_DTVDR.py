@@ -1,7 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 import numpy as np
-from TVDCondat2013 import TVD, D_TVD_R
+from TVDCondat2013 import TVD, D_TVD_R, D_TVD_R_v2
 from matplotlib import pyplot as plt
 
 
@@ -38,9 +38,11 @@ lambda_TVD = [100,250,500,5000,10000]
 # Denoising with different lambda
 
 for l in lambda_TVD:
-	print('lambda: ', l)
-	denoised = D_TVD_R(A,l)
-	plt.plot(X,denoised, lw = 1, zorder = 2, label= r"TVD $\lambda$ = %s"%(l))
+        print('lambda: ', l)
+        denoised_v1 = D_TVD_R(A,l)
+        denoised_v2 = D_TVD_R_v2(A,l)
+        plt.plot(X,denoised_v1, lw = 1, zorder = 2, label= r"TVD $\lambda$ = %s"%(l))
+        plt.plot(X,denoised_v2, lw = 1, zorder = 2, linestyle='--', label= r"TVD_v2 $\lambda$ = %s"%(l))
 
 
 

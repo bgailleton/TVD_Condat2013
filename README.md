@@ -1,7 +1,9 @@
 TVDCondat2013
 ==============
 
-*UPDATE 2025* : Still using that code as is, I updated the references and I am now preparing a `pip` package precompiled for Window/Mac/Linux. I'm also updating the method to a more optimised version. 
+*UPDATE 2025* : Still using that code as is, I updated the references and I am now preparing a `pip` package precompiled for Window/Mac/Linux. I'm also updating the method to a more optimised version.
+
+Version 2 of the tools implements Condat's 2017 improvements, providing faster convergence while keeping the same interface.
 
 TVDCondat2013 is a python portage of the 1D Total Variation Denoising algorithm from Condat 2013: _A Direct Algorithm for 1D Total Variation Denoising_ (Sign. Proc. Letters, DOI:10.1109/LSP.2013.2278339) using pybind11 to bind C++ and NumPy directly.
 
@@ -19,25 +21,32 @@ This work
 Quick start
 ------------
 
-So far the following denoising of a `numpy` array are implemented:
-
-**Quick use of the original denoising**
-```
-from TVDCondat2013 import TVD
-...
-denoised = TVD(MyNumpyArray,lambda_TVD)
-...
+So far the following denoising of a `numpy` array are implemented. Both the
+original 2013 algorithm and the faster 2017 variant are exposed:
 
 ```
-
-Run `python examples/example_readme.py` to generate a figure comparing the original, noisy, and TVD-denoised signals. The script builds a piecewise-constant signal, corrupts it with Gaussian noise, denoises it with TVD, and plots the three signals in aligned subplots, saving the result as `examples/Example.png`.
-
-**More experimental: curve denoising. So far the boundary condition might shift up or down the data. I am working on it**
+from TVDCondat2013 import TVD, TVD_v2
+...
+denoised_v1 = TVD(MyNumpyArray, lambda_TVD)       # 2013 algorithm
+denoised_v2 = TVD_v2(MyNumpyArray, lambda_TVD)    # 2017 algorithm
+...
 
 ```
-from TVDCondat2013 import D_TVD_R
+
+Run `python examples/example_readme.py` to generate a figure comparing the
+original, noisy, and denoised signals using both algorithms. The script builds a
+piecewise-constant signal, corrupts it with Gaussian noise, denoises it with
+``TVD`` and ``TVD_v2``, and plots the results in aligned subplots, saving the
+figure as `examples/Example.png`.
+
+**More experimental: curve denoising. So far the boundary condition might shift
+up or down the data. I am working on it**
+
+```
+from TVDCondat2013 import D_TVD_R, D_TVD_R_v2
 ...
-curve_denoised = D_TVD_R((MyNumpyArray_of_curve,lambda_TVD))
+curve_denoised_v1 = D_TVD_R(MyNumpyArray_of_curve, lambda_TVD)
+curve_denoised_v2 = D_TVD_R_v2(MyNumpyArray_of_curve, lambda_TVD)
 ...
 
 ```
@@ -108,6 +117,7 @@ The following command generates HTML-based reference documentation; for other
 formats please refer to the Sphinx manual:
 
  - `TVDCondat2013/docs`
+ - `pip install sphinx furo`
  - `make html`
 
 
