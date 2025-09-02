@@ -12,3 +12,4 @@ def test_extension_imports():
     module = importlib.import_module('TVDCondat2013')
     assert hasattr(module, 'tvd_2013')
     assert hasattr(module, 'tvd_2017')
+    assert hasattr(module, 'tvd_tautstring')

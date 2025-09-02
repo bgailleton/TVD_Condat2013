@@ -1,7 +1,7 @@
 """Example illustrating 1D denoising with :mod:`TVDCondat2013`.
 
 The script generates a piecewise-constant signal, corrupts it with Gaussian
-noise, denoises it with both available algorithms, and saves a figure comparing
+noise, denoises it with all available algorithms, and saves a figure comparing
 the results.
 """
 
@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
 
-from TVDCondat2013 import tvd_2013, tvd_2017
+from TVDCondat2013 import fused_lasso, tvd_2013, tvd_2017, tvd_tautstring
 
 
 def main() -> None:
@@ -28,14 +28,17 @@ def main() -> None:
 
     # Denoise the 1-D signal with a reasonable lambda
     lambda_tvd = 10.0
+    mu_l1 = 1.0
     denoised_v1 = tvd_2013(noisy, lambda_tvd)
     denoised_v2 = tvd_2017(noisy, lambda_tvd)
+    denoised_ts = tvd_tautstring(noisy, lambda_tvd)
+    denoised_fl = fused_lasso(noisy, lambda_tvd, mu_l1)
 
     # ------------------------------------------------------------------
     # Plot original, noisy, and denoised signals in separate panels
     # ------------------------------------------------------------------
     x = np.arange(clean.size)
-    fig, axes = plt.subplots(4, 1, sharex=True, figsize=(8, 8))
+    fig, axes = plt.subplots(6, 1, sharex=True, figsize=(8, 12))
 
     axes[0].plot(x, clean, color="k", lw=1)
     axes[0].set_ylabel("Amplitude")
@@ -50,9 +53,19 @@ def main() -> None:
     axes[2].set_title(f"tvd_2013 (lambda={lambda_tvd})")
 
     axes[3].plot(x, denoised_v2, color="C2", lw=1.5)
-    axes[3].set_xlabel("Sample")
     axes[3].set_ylabel("Amplitude")
     axes[3].set_title(f"tvd_2017 (lambda={lambda_tvd})")
+
+    axes[4].plot(x, denoised_ts, color="C3", lw=1.5)
+    axes[4].set_ylabel("Amplitude")
+    axes[4].set_title(f"tvd_tautstring (lambda={lambda_tvd})")
+
+    axes[5].plot(x, denoised_fl, color="C4", lw=1.5)
+    axes[5].set_xlabel("Sample")
+    axes[5].set_ylabel("Amplitude")
+    axes[5].set_title(
+        f"fused_lasso (lambda={lambda_tvd}, mu={mu_l1})"
+    )
 
     fig.tight_layout()
     output_path = Path(__file__).with_name("Example.png")
