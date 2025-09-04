@@ -1,14 +1,43 @@
 name: Build wheels
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version increment (0.1=minor, 0.01=patch)'
+        required: true
+        default: '0.01'
+        type: choice
+        options:
+          - '0.1'
+          - '0.01'
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bump version
+        id: bump
+        run: |
+          new_version=$(python .github/scripts/bump_version.py ${{ inputs.bump }})
+          echo "version=$new_version" >> "$GITHUB_OUTPUT"
+      - name: Commit version
+        id: commit
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git commit -am "Bump version to ${{ steps.bump.outputs.version }}"
+          git tag "v${{ steps.bump.outputs.version }}"
+          git push origin HEAD --tags
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build wheels on ${{ matrix.os }}
+    needs: prepare
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -16,6 +45,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-13, macos-14]
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -40,20 +71,16 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'workflow_dispatch'
+    needs: [build, prepare]
     steps:
-      - uses: actions/checkout@v3
-      - name: Download wheel artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
-      - name: Commit wheels
-        run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git add wheelhouse/*.whl
-          git commit -m "Add wheels from run ${GITHUB_RUN_ID}"
-          git push
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: v${{ needs.prepare.outputs.version }}
+          files: wheelhouse/*.whl
