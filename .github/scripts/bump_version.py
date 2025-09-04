@@ -41,6 +41,7 @@ conf_text = re.sub(
     lambda m: f"{m.group(1)}{new_version}{m.group(3)}",
     conf_text,
 )
+
 conf_path.write_text(conf_text)
 
 print(new_version)
