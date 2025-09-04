@@ -23,14 +23,25 @@ else:
     version_parts[2] += 1
 new_version = ".".join(str(p) for p in version_parts)
 
-setup_text = re.sub(r"(__version__\s*=\s*['\"])([^'\"]+)(['\"])",
-                    rf"\1{new_version}\3",
-                    setup_path.read_text())
+setup_text = re.sub(
+    r"(__version__\s*=\s*['\"])([^'\"]+)(['\"])",
+    lambda m: f"{m.group(1)}{new_version}{m.group(3)}",
+    setup_path.read_text(),
+)
 setup_path.write_text(setup_text)
 
 conf_text = conf_path.read_text()
-conf_text = re.sub(r"(version = u')([^']+)('\n)", rf"\1{new_version}\3", conf_text)
-conf_text = re.sub(r"(release = u')([^']+)('\n)", rf"\1{new_version}\3", conf_text)
+conf_text = re.sub(
+    r"(version = u')([^']+)('\n)",
+    lambda m: f"{m.group(1)}{new_version}{m.group(3)}",
+    conf_text,
+)
+conf_text = re.sub(
+    r"(release = u')([^']+)('\n)",
+    lambda m: f"{m.group(1)}{new_version}{m.group(3)}",
+    conf_text,
+)
+
 conf_path.write_text(conf_text)
 
 print(new_version)
