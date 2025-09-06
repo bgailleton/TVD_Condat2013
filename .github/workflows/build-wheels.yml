@@ -54,7 +54,7 @@ jobs:
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install cibuildwheel==2.16.2
+          pip install cibuildwheel
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
         env:
@@ -63,6 +63,8 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
+      - name: Validate wheels
+        run: python wheelhouse/debug_wheel.py wheelhouse
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -78,9 +80,15 @@ jobs:
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
+      - name: Generate checksums
+        run: |
+          cd wheelhouse
+          sha256sum *.whl > SHA256SUMS
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.prepare.outputs.version }}
           name: v${{ needs.prepare.outputs.version }}
-          files: wheelhouse/*.whl
+          files: |
+            wheelhouse/*.whl
+            wheelhouse/SHA256SUMS
