@@ -121,6 +121,21 @@ Running the tests requires `pytest`.
 py.test .
 ```
 
+Wheel integrity checks
+----------------------
+
+The repository ships with `wheelhouse/debug_wheel.py` which inspects wheel
+archives for CRC mismatches, duplicate end-of-central-directory records, and
+shifted local headers. If the script reports a corrupted member it means the
+payload was modified after the wheel was built (`zip -u`, `zip -A`, `strip`, and
+some antivirus scanners are known to do this). Always rebuild the wheel instead
+of editing an existing archive in place; otherwise `pip` will reject the file.
+
+If a wheel was accidentally "freshened" in place, `python wheelhouse/repair_wheel.py`
+can reconstruct the archive metadata (recomputing `RECORD` along the way). Pass
+`--in-place` to rewrite the original wheel or `--output <dir>` to write repaired
+copies to a separate directory.
+
 Copyright
 ---------
 
