@@ -129,7 +129,10 @@ archives for CRC mismatches and shifted local headers. If the script reports a
 corrupted member it means the payload was modified after the wheel was built
 (`strip` and some antivirus scanners are known to do this). Always rebuild the
 wheel instead of editing an existing archive in place; otherwise `pip` will
-reject the file.
+reject the file. The release workflow runs this validator on the freshly
+produced wheels and fails fast if corruption is detected. Because every run
+builds wheels from a clean checkout, removing any committed artefacts and
+rerunning the workflow is sufficient to resolve earlier corruption reports.
 
 Copyright
 ---------
