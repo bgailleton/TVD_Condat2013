@@ -1,16 +1,20 @@
-name: Build wheels
+name: Release wheels
 
 on:
   workflow_dispatch:
     inputs:
-      bump:
-        description: 'Version increment (0.1=minor, 0.01=patch)'
+      increment:
+        description: 'Version bump (+1=major, +0.1=minor, +0.0.1=patch)'
         required: true
-        default: '0.01'
+        default: '+0.0.1'
         type: choice
         options:
-          - '0.1'
-          - '0.01'
+          - '+1'
+          - '+0.1'
+          - '+0.0.1'
+
+permissions:
+  contents: write
 
 jobs:
   prepare:
@@ -19,11 +23,13 @@ jobs:
       version: ${{ steps.bump.outputs.version }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Bump version
         id: bump
         run: |
-          new_version=$(python .github/scripts/bump_version.py ${{ inputs.bump }})
+          new_version=$(python .github/scripts/bump_version.py ${{ inputs.increment }})
           echo "version=$new_version" >> "$GITHUB_OUTPUT"
       - name: Commit version
         id: commit
@@ -44,11 +50,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-13, macos-14]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - name: Install build tools

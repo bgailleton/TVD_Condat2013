@@ -2,9 +2,20 @@ import re
 import sys
 from pathlib import Path
 
+if len(sys.argv) != 2:
+    raise SystemExit("usage: bump_version.py <increment>")
+
 increment = sys.argv[1]
-if increment not in {"0.1", "0.01"}:
-    raise SystemExit("increment must be 0.1 or 0.01")
+
+allowed_increments = {
+    "+1": "major",
+    "+0.1": "minor",
+    "+0.0.1": "patch",
+}
+
+if increment not in allowed_increments:
+    choices = ", ".join(sorted(allowed_increments))
+    raise SystemExit(f"increment must be one of: {choices}")
 
 setup_path = Path("setup.py")
 conf_path = Path("docs/conf.py")
@@ -15,12 +26,21 @@ def read_version(text):
         raise RuntimeError("version string not found")
     return [int(part) for part in m.groups()]
 
-version_parts = read_version(setup_path.read_text())
-if increment == "0.1":
-    version_parts[1] += 1
-    version_parts[2] = 0
+major, minor, patch = version_parts = read_version(setup_path.read_text())
+
+kind = allowed_increments[increment]
+
+if kind == "major":
+    major += 1
+    minor = 0
+    patch = 0
+elif kind == "minor":
+    minor += 1
+    patch = 0
 else:
-    version_parts[2] += 1
+    patch += 1
+
+version_parts = [major, minor, patch]
 new_version = ".".join(str(p) for p in version_parts)
 
 setup_text = re.sub(
