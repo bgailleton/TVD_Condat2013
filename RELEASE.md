@@ -7,7 +7,10 @@
    produced and pass `python wheelhouse/debug_wheel.py dist` to verify the archives.
 3. Trigger the "Release wheels" workflow in GitHub Actions. The workflow invokes
    `cibuildwheel` on Linux, macOS, and Windows, validates the resulting archives with
-   `wheelhouse/debug_wheel.py`, and publishes the release artefacts.
+   `wheelhouse/debug_wheel.py`, and publishes the release artefacts. If the
+   validator reports corruption, wipe the workspace artefacts (including any
+   previously committed wheels), rerun the workflow, and allow it to rebuild the
+   archives from source.
 4. **Do not edit wheels in place.** Any post-processing that rewrites files inside a wheel
    (for example running `strip` or an antivirus scanner on `TVDCondat2013*.so/.pyd` inside
    the archive) changes the payload without updating the zip metadata. The debug script will
