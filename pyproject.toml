@@ -1,8 +1,35 @@
 [build-system]
 requires = [
-    "setuptools>=61",
+    "setuptools>=68",
     "wheel",
-    "pybind11>=2.10",
-    "numpy"
+    "pybind11>=2.0.1",
+    "numpy",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "TVDCondat2013"
+version = "0.0.9"
+description = "Python port of Condat (2013) 1D Total Variation Denoising using pybind11 and NumPy"
+readme = "README.md"
+authors = [
+    { name = "Boris Gailleton", email = "b.gailleton@sms.ed.ac.uk" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+dependencies = ["numpy"]
+urls = { "Homepage" = "https://github.com/bgailleton/TVDCondat2013" }
+
+[tool.setuptools]
+# keep legacy setup.py build logic for pybind11 extension
+include-package-data = false
+license-files = ["LICENSE"]
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests*", "examples*"]
+
+[tool.pybind11]
+# optional, but helps cibuildwheel detect pybind11 usage
+default-include = true

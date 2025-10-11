@@ -114,6 +114,5 @@ setup(
     setup_requires=['pybind11>=2.0.1', 'numpy'],
     install_requires=['numpy'],
     cmdclass={'build_ext': BuildExt},
-    license_files=["LICENSE"],
     zip_safe=False,
 )
