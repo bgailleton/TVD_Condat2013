@@ -90,11 +90,19 @@ jobs:
                   if bad is not None:
                       raise SystemExit(f"Corrupt entry {bad} in {w}")
           PY
-      - name: Hash wheels
+      - name: Hash wheels (cross-platform)
         shell: bash
         run: |
-          cd wheelhouse
-          sha256sum *.whl | sort > "SHA256SUMS-${{ matrix.os }}"
+          python - <<'PY'
+          import hashlib, glob, pathlib
+          out = pathlib.Path("wheelhouse") / f"SHA256SUMS-${{ matrix.os }}"
+          with out.open("w") as fh:
+              for p in sorted(glob.glob("wheelhouse/*.whl")):
+                  with open(p, "rb") as f:
+                      h = hashlib.sha256(f.read()).hexdigest()
+                  fh.write(f"{h}  {pathlib.Path(p).name}\n")
+          print("Wrote", out)
+          PY
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -135,14 +143,20 @@ jobs:
                   assert z.testzip() is None, f"Corrupt entry in {w}"
           print(f"Verified {len(ws)} wheels")
           PY
-      - name: Verify checksums
+      - name: Verify checksums (cross-platform)
         shell: bash
         run: |
           set -euo pipefail
-          # Concatenate expected sums
           cat wheelhouse/SHA256SUMS-* | sort > /tmp/expected.txt
-          # Compute actual sums
-          (cd wheelhouse && sha256sum *.whl | sort) > /tmp/actual.txt
+          python - <<'PY'
+          import hashlib, glob, pathlib
+          lines=[]
+          for p in sorted(glob.glob("wheelhouse/*.whl")):
+              with open(p,"rb") as f:
+                  h=hashlib.sha256(f.read()).hexdigest()
+              lines.append(f"{h}  {pathlib.Path(p).name}")
+          print("\n".join(sorted(lines)))
+          PY > /tmp/actual.txt
           diff -u /tmp/expected.txt /tmp/actual.txt
       - name: Twine metadata check
         run: |
@@ -166,8 +180,16 @@ jobs:
       - name: Generate combined checksums
         shell: bash
         run: |
-          set -euo pipefail
-          (cd wheelhouse && sha256sum *.whl | sort) > wheelhouse/SHA256SUMS
+          python - <<'PY'
+          import hashlib, glob, pathlib
+          out = pathlib.Path("wheelhouse") / "SHA256SUMS"
+          with out.open("w") as fh:
+              for p in sorted(glob.glob("wheelhouse/*.whl")):
+                  with open(p,"rb") as f:
+                      h=hashlib.sha256(f.read()).hexdigest()
+                  fh.write(f"{h}  {pathlib.Path(p).name}\n")
+          print("Wrote", out)
+          PY
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
