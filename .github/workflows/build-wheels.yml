@@ -8,7 +8,10 @@ on:
         required: true
         default: '+0.0.1'
         type: choice
-        options: ['+1', '+0.1', '+0.0.1']
+        options:
+          - '+1'
+          - '+0.1'
+          - '+0.0.1'
 
 permissions:
   contents: write
@@ -61,12 +64,12 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import shutil, glob
-          for p in ('wheelhouse','build','dist'):
-              shutil.rmtree(p, ignore_errors=True)
-          for e in glob.glob('*.egg-info'):
-              shutil.rmtree(e, ignore_errors=True)
-          PY
+import shutil, glob
+for p in ('wheelhouse','build','dist'):
+    shutil.rmtree(p, ignore_errors=True)
+for e in glob.glob('*.egg-info'):
+    shutil.rmtree(e, ignore_errors=True)
+PY
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
         env:
@@ -79,37 +82,37 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import glob, zipfile, sys
-          ws = sorted(glob.glob("wheelhouse/*.whl"))
-          if not ws:
-              print("No wheels found"); sys.exit(1)
-          for w in ws:
-              print("Testing", w, flush=True)
-              with zipfile.ZipFile(w) as z:
-                  bad = z.testzip()
-                  if bad is not None:
-                      raise SystemExit(f"Corrupt entry {bad} in {w}")
-          PY
+import glob, zipfile, sys
+ws = sorted(glob.glob("wheelhouse/*.whl"))
+if not ws:
+    print("No wheels found"); sys.exit(1)
+for w in ws:
+    print("Testing", w, flush=True)
+    with zipfile.ZipFile(w) as z:
+        bad = z.testzip()
+        if bad is not None:
+            raise SystemExit(f"Corrupt entry {bad} in {w}")
+PY
       - name: Hash wheels (cross-platform)
         shell: bash
         run: |
           python - <<'PY'
-          import hashlib, glob, pathlib
-          out = pathlib.Path("wheelhouse") / f"SHA256SUMS-${{ matrix.os }}"
-          with out.open("w") as fh:
-              for p in sorted(glob.glob("wheelhouse/*.whl")):
-                  with open(p, "rb") as f:
-                      h = hashlib.sha256(f.read()).hexdigest()
-                  fh.write(f"{h}  {pathlib.Path(p).name}\n")
-          print("Wrote", out)
-          PY
+import hashlib, glob, pathlib, os
+out = pathlib.Path("wheelhouse") / f"SHA256SUMS-{os.environ['RUNNER_OS']}"
+with out.open("w") as fh:
+    for p in sorted(glob.glob("wheelhouse/*.whl")):
+        with open(p, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        fh.write(f"{h}  {pathlib.Path(p).name}\n")
+print("Wrote", out)
+PY
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
           path: |
             wheelhouse/*.whl
-            wheelhouse/SHA256SUMS-${{ matrix.os }}
+            wheelhouse/SHA256SUMS-*
           if-no-files-found: error
           compression-level: 0
 
@@ -134,29 +137,30 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import glob, zipfile, sys
-          ws = sorted(glob.glob("wheelhouse/*.whl"))
-          if not ws:
-              print("No wheels found"); sys.exit(1)
-          for w in ws:
-              with zipfile.ZipFile(w) as z:
-                  assert z.testzip() is None, f"Corrupt entry in {w}"
-          print(f"Verified {len(ws)} wheels")
-          PY
+import glob, zipfile, sys
+ws = sorted(glob.glob("wheelhouse/*.whl"))
+if not ws:
+    print("No wheels found"); sys.exit(1)
+for w in ws:
+    with zipfile.ZipFile(w) as z:
+        assert z.testzip() is None, f"Corrupt entry in {w}"
+print(f"Verified {len(ws)} wheels")
+PY
       - name: Verify checksums (cross-platform)
         shell: bash
         run: |
           set -euo pipefail
           cat wheelhouse/SHA256SUMS-* | sort > /tmp/expected.txt
-          python - <<'PY'
-          import hashlib, glob, pathlib
-          lines=[]
-          for p in sorted(glob.glob("wheelhouse/*.whl")):
-              with open(p,"rb") as f:
-                  h=hashlib.sha256(f.read()).hexdigest()
-              lines.append(f"{h}  {pathlib.Path(p).name}")
-          print("\n".join(sorted(lines)))
-          PY > /tmp/actual.txt
+          python - <<'PY' > /tmp/actual.txt
+import hashlib, glob, pathlib
+lines=[]
+for p in sorted(glob.glob("wheelhouse/*.whl")):
+    with open(p,"rb") as f:
+        h=hashlib.sha256(f.read()).hexdigest()
+    lines.append(f"{h}  {pathlib.Path(p).name}")
+for line in sorted(lines):
+    print(line)
+PY
           diff -u /tmp/expected.txt /tmp/actual.txt
       - name: Twine metadata check
         run: |
@@ -181,15 +185,15 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import hashlib, glob, pathlib
-          out = pathlib.Path("wheelhouse") / "SHA256SUMS"
-          with out.open("w") as fh:
-              for p in sorted(glob.glob("wheelhouse/*.whl")):
-                  with open(p,"rb") as f:
-                      h=hashlib.sha256(f.read()).hexdigest()
-                  fh.write(f"{h}  {pathlib.Path(p).name}\n")
-          print("Wrote", out)
-          PY
+import hashlib, glob, pathlib
+out = pathlib.Path("wheelhouse") / "SHA256SUMS"
+with out.open("w") as fh:
+    for p in sorted(glob.glob("wheelhouse/*.whl")):
+        with open(p,"rb") as f:
+            h=hashlib.sha256(f.read()).hexdigest()
+        fh.write(f"{h}  {pathlib.Path(p).name}\n")
+print("Wrote", out)
+PY
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
