@@ -23,13 +23,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Bump version
         id: bump
         run: |
           new_version=$(python .github/scripts/bump_version.py ${{ inputs.increment }})
           echo "version=$new_version" >> "$GITHUB_OUTPUT"
-
       - name: Commit version and tag
         id: commit
         run: |
@@ -48,26 +46,20 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-13", "macos-14"]
-
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install build tools
+      - name: Install cibuildwheel
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel
-
       - name: Clean outputs
         shell: bash
-        run: |
-          rm -rf wheelhouse build dist *.egg-info || true
-
+        run: rm -rf wheelhouse build dist *.egg-info || true
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
         env:
@@ -76,41 +68,19 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
-
-      - name: Validate wheel ZIP structure
+      - name: Validate wheels
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
           files=(wheelhouse/*.whl)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No wheels found"; exit 1
-          fi
-          for f in "${files[@]}"; do
-            python -m zipfile -t "$f"
-          done
-          echo "Validated ${#files[@]} wheels"
-
-      - name: Hash wheels (cross-platform)
-        shell: bash
-        run: |
-          python - <<'PY'
-import hashlib, glob, pathlib, os
-out = pathlib.Path("wheelhouse") / ("SHA256SUMS-" + os.environ.get("RUNNER_OS","unknown"))
-with open(out, "w") as fh:
-    for p in sorted(glob.glob("wheelhouse/*.whl")):
-        h = hashlib.sha256(open(p,"rb").read()).hexdigest()
-        fh.write(f"{h}  {pathlib.Path(p).name}\n")
-print("Wrote", out)
-PY
-
+          if [ ${#files[@]} -eq 0 ]; then echo "No wheels found"; exit 1; fi
+          for f in "${files[@]}"; do python -m zipfile -t "$f"; done
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
-          path: |
-            wheelhouse/*.whl
-            wheelhouse/SHA256SUMS-*
+          path: wheelhouse/*.whl
           if-no-files-found: error
           compression-level: 0
 
@@ -118,9 +88,9 @@ PY
     name: Publish to PyPI (Linux only)
     needs: [build, prepare]
     runs-on: ubuntu-latest
-    environment: pypi   # must match the PyPI Trusted Publisher “Environment”
+    environment: pypi
     permissions:
-      id-token: write   # required for OIDC trusted publishing
+      id-token: write
       contents: read
     steps:
       - uses: actions/download-artifact@v4
@@ -128,30 +98,21 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Re-validate wheels
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
           files=(wheelhouse/*.whl)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No wheels found"; exit 1
-          fi
-          for f in "${files[@]}"; do
-            python -m zipfile -t "$f"
-          done
-          echo "Verified ${#files[@]} wheels"
-
+          if [ ${#files[@]} -eq 0 ]; then echo "No wheels found"; exit 1; fi
+          for f in "${files[@]}"; do python -m zipfile -t "$f"; done
       - name: Twine metadata check
         run: |
           python -m pip install -U twine pkginfo
           twine check wheelhouse/*.whl
-
       - name: Upload to PyPI (trusted publisher)
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -169,7 +130,6 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
