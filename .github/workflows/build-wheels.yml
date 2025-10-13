@@ -26,11 +26,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Bump version
         id: bump
         run: |
           new_version=$(python .github/scripts/bump_version.py ${{ inputs.increment }})
           echo "version=$new_version" >> "$GITHUB_OUTPUT"
+
       - name: Commit version and tag
         id: commit
         run: |
@@ -48,18 +50,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-13
+          - macos-14
+
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Upgrade build toolchain
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel
+
       - name: Clean
         shell: bash
         run: |
@@ -70,6 +80,7 @@ for p in ('wheelhouse','build','dist'):
 for e in glob.glob('*.egg-info'):
     shutil.rmtree(e, ignore_errors=True)
 PY
+
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
         env:
@@ -78,6 +89,7 @@ PY
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
+
       - name: Validate wheel ZIP structure
         shell: bash
         run: |
@@ -87,12 +99,13 @@ ws = sorted(glob.glob("wheelhouse/*.whl"))
 if not ws:
     print("No wheels found"); sys.exit(1)
 for w in ws:
-    print("Testing", w, flush=True)
     with zipfile.ZipFile(w) as z:
         bad = z.testzip()
         if bad is not None:
             raise SystemExit(f"Corrupt entry {bad} in {w}")
+print(f"Verified {len(ws)} wheels")
 PY
+
       - name: Hash wheels (cross-platform)
         shell: bash
         run: |
@@ -106,6 +119,7 @@ with out.open("w") as fh:
         fh.write(f"{h}  {pathlib.Path(p).name}\n")
 print("Wrote", out)
 PY
+
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -130,9 +144,11 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Verify ZIP integrity
         shell: bash
         run: |
@@ -146,6 +162,7 @@ for w in ws:
         assert z.testzip() is None, f"Corrupt entry in {w}"
 print(f"Verified {len(ws)} wheels")
 PY
+
       - name: Verify checksums (cross-platform)
         shell: bash
         run: |
@@ -162,10 +179,12 @@ for line in sorted(lines):
     print(line)
 PY
           diff -u /tmp/expected.txt /tmp/actual.txt
+
       - name: Twine metadata check
         run: |
           python -m pip install -U twine pkginfo
           twine check wheelhouse/*.whl
+
       - name: Upload to PyPI (trusted publisher)
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -181,6 +200,7 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
+
       - name: Generate combined checksums
         shell: bash
         run: |
@@ -194,6 +214,7 @@ with out.open("w") as fh:
         fh.write(f"{h}  {pathlib.Path(p).name}\n")
 print("Wrote", out)
 PY
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
