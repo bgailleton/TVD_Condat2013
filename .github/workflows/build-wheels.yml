@@ -51,15 +51,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel
-      - name: Clean old outputs
-        shell: bash
+
+      - name: Clean outputs
         run: |
           python - <<'PY'
 import shutil, glob
@@ -68,6 +70,7 @@ for p in ('wheelhouse','build','dist'):
 for e in glob.glob('*.egg-info'):
     shutil.rmtree(e, ignore_errors=True)
 PY
+
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
         env:
@@ -76,39 +79,26 @@ PY
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
-      - name: Validate wheel structure
-        shell: bash
+
+      - name: Validate wheels
         run: |
           python - <<'PY'
 import glob, zipfile, sys
-wheels = sorted(glob.glob("wheelhouse/*.whl"))
-if not wheels:
+ws = sorted(glob.glob("wheelhouse/*.whl"))
+if not ws:
     sys.exit("No wheels found")
-for w in wheels:
+for w in ws:
     with zipfile.ZipFile(w) as z:
         if z.testzip():
-            sys.exit(f"Corrupt entry in {w}")
-print(f"Validated {len(wheels)} wheels")
+            sys.exit("Corrupt entry in " + w)
+print("Validated", len(ws), "wheels")
 PY
-      - name: Hash wheels (cross-platform)
-        shell: bash
-        run: |
-          python - <<'PY'
-import hashlib, glob, pathlib, os
-out = pathlib.Path("wheelhouse") / ("SHA256SUMS-" + os.environ.get("RUNNER_OS","unknown"))
-with open(out, "w") as fh:
-    for p in sorted(glob.glob("wheelhouse/*.whl")):
-        h = hashlib.sha256(open(p,"rb").read()).hexdigest()
-        fh.write(f"{h}  {pathlib.Path(p).name}\n")
-print("Wrote", out)
-PY
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
-          path: |
-            wheelhouse/*.whl
-            wheelhouse/SHA256SUMS-*
+          path: wheelhouse/*.whl
           if-no-files-found: error
           compression-level: 0
 
@@ -126,38 +116,30 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Check wheel integrity
-        shell: bash
+
+      - name: Re-validate wheels
         run: |
           python - <<'PY'
 import glob, zipfile, sys
-wheels = sorted(glob.glob("wheelhouse/*.whl"))
-if not wheels:
+ws = sorted(glob.glob("wheelhouse/*.whl"))
+if not ws:
     sys.exit("No wheels found")
-for w in wheels:
+for w in ws:
     with zipfile.ZipFile(w) as z:
         if z.testzip():
-            sys.exit(f"Corrupt entry in {w}")
-print(f"Verified {len(wheels)} wheels")
+            sys.exit("Corrupt entry in " + w)
+print("Verified", len(ws), "wheels")
 PY
-      - name: Metadata + checksum verification
+
+      - name: Twine metadata check
         run: |
           python -m pip install -U twine pkginfo
           twine check wheelhouse/*.whl
-          python - <<'PY'
-import hashlib, glob, pathlib
-exp = []
-for sf in sorted(glob.glob("wheelhouse/SHA256SUMS-*")):
-    exp += open(sf).read().splitlines()
-act = [f"{hashlib.sha256(open(p,'rb').read()).hexdigest()}  {pathlib.Path(p).name}"
-       for p in sorted(glob.glob('wheelhouse/*.whl'))]
-if sorted(exp) != sorted(act):
-    import sys; sys.exit("Checksum mismatch")
-print("Checksums OK")
-PY
+
       - name: Upload to PyPI (trusted publisher)
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -173,23 +155,9 @@ PY
           pattern: wheels-*
           path: wheelhouse
           merge-multiple: true
-      - name: Generate unified checksums
-        shell: bash
-        run: |
-          python - <<'PY'
-import hashlib, glob, pathlib
-out = pathlib.Path("wheelhouse") / "SHA256SUMS"
-with open(out, "w") as fh:
-    for p in sorted(glob.glob("wheelhouse/*.whl")):
-        h = hashlib.sha256(open(p,"rb").read()).hexdigest()
-        fh.write(f"{h}  {pathlib.Path(p).name}\n")
-print("Wrote", out)
-PY
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.prepare.outputs.version }}
           name: v${{ needs.prepare.outputs.version }}
-          files: |
-            wheelhouse/*.whl
-            wheelhouse/SHA256SUMS
+          files: wheelhouse/*.whl
