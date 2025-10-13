@@ -4,14 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       increment:
-        description: 'Version bump (+1=major, +0.1=minor, +0.0.1=patch)'
+        description: "Version bump (+1=major, +0.1=minor, +0.0.1=patch)"
         required: true
-        default: '+0.0.1'
+        default: "+0.0.1"
         type: choice
-        options:
-          - '+1'
-          - '+0.1'
-          - '+0.0.1'
+        options: ["+1", "+0.1", "+0.0.1"]
 
 permissions:
   contents: write
@@ -50,11 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-13
-          - macos-14
+        os: ["ubuntu-latest", "windows-latest", "macos-13", "macos-14"]
 
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +56,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Upgrade build toolchain
         run: |
@@ -111,7 +104,7 @@ PY
         run: |
           python - <<'PY'
 import hashlib, glob, pathlib, os
-out = pathlib.Path("wheelhouse") / f"SHA256SUMS-{os.environ['RUNNER_OS']}"
+out = pathlib.Path("wheelhouse") / f"SHA256SUMS-{os.environ.get('RUNNER_OS','unknown')}"
 with out.open("w") as fh:
     for p in sorted(glob.glob("wheelhouse/*.whl")):
         with open(p, "rb") as f:
@@ -147,7 +140,7 @@ PY
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Verify ZIP integrity
         shell: bash
