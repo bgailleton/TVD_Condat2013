@@ -21,8 +21,7 @@ jobs:
       sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: Bump version
         id: bump
@@ -51,12 +50,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.prepare.outputs.sha }}
+        with: { ref: ${{ needs.prepare.outputs.sha }} }
 
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        with: { python-version: "3.11" }
 
       - name: Install build tools
         run: |
@@ -77,7 +74,7 @@ jobs:
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel}"
 
-      - name: Validate wheels (no zip CLI)
+      - name: Validate wheels (direct zip test)
         shell: bash
         run: |
           python - <<'PY'
@@ -91,10 +88,10 @@ for w in ws:
         with zipfile.ZipFile(w) as z:
             bad = z.testzip()
             if bad:
-                sys.exit(f"{p.name}: corrupt entry {bad}")
+                sys.exit(p.name + ": corrupt entry " + bad)
     except zipfile.BadZipFile as e:
-        sys.exit(f"{p.name}: bad zip: {e}")
-print(f"Validated {len(ws)} wheels")
+        sys.exit(p.name + ": bad zip: " + str(e))
+print("Validated", len(ws), "wheels")
 PY
 
       - name: Hash wheels (cross-platform)
@@ -106,7 +103,7 @@ out = pathlib.Path("wheelhouse") / ("SHA256SUMS-" + os.environ.get("RUNNER_OS","
 with open(out, "w") as fh:
     for p in sorted(glob.glob("wheelhouse/*.whl")):
         h = hashlib.sha256(open(p,"rb").read()).hexdigest()
-        fh.write(f"{h}  {pathlib.Path(p).name}\n")
+        fh.write("%s  %s\n" % (h, pathlib.Path(p).name))
 print("Wrote", out)
 PY
 
@@ -133,13 +130,12 @@ PY
         with:
           pattern: wheels-*
           path: wheelhouse
-          merge-multiple: true
+        # merge-multiple true is default for v4 when using pattern
 
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        with: { python-version: "3.11" }
 
-      - name: Re-validate wheels (no zip CLI)
+      - name: Re-validate wheels (direct zip test)
         shell: bash
         run: |
           python - <<'PY'
@@ -153,10 +149,10 @@ for w in ws:
         with zipfile.ZipFile(w) as z:
             bad = z.testzip()
             if bad:
-                sys.exit(f"{p.name}: corrupt entry {bad}")
+                sys.exit(p.name + ": corrupt entry " + bad)
     except zipfile.BadZipFile as e:
-        sys.exit(f"{p.name}: bad zip: {e}")
-print(f"Verified {len(ws)} wheels")
+        sys.exit(p.name + ": bad zip: " + str(e))
+print("Verified", len(ws), "wheels")
 PY
 
       - name: Twine metadata check
@@ -180,7 +176,6 @@ PY
         with:
           pattern: wheels-*
           path: wheelhouse
-          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
