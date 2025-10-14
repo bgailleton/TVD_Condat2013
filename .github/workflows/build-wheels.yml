@@ -68,11 +68,13 @@ jobs:
 
       - name: Clean outputs (Windows)
         if: runner.os == 'Windows'
+        shell: cmd
         run: |
-          rmdir /s /q wheelhouse 2>nul || exit 0
-          rmdir /s /q build 2>nul || exit 0
-          rmdir /s /q dist 2>nul || exit 0
+          rmdir /s /q wheelhouse 2>nul || exit /b 0
+          rmdir /s /q build 2>nul || exit /b 0
+          rmdir /s /q dist 2>nul || exit /b 0
           for /d %%G in (*.egg-info) do rmdir /s /q "%%G"
+
 
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
