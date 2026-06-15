@@ -275,37 +275,35 @@ static void tv1d_denoise_v2_double(const double *input, double *output,
                     output[indstart_up[j_up]] = output_up_curr;
             }
             else
-            {
                 output_up_curr = output[i] = input[indstart_up[++j_up] = i];
-                output_low_curr +=
-                    (input[i] - output_low_curr) /
-                    (i - indstart_low[j_low] + 1);
-                output[indjseg] = output_low_first;
-                while ((j_low > jseg) &&
-                       (output_low_curr >= output[ind = indstart_low[j_low - 1]]))
-                    output_low_curr += (output[ind] - output_low_curr) *
-                                       (double)(indstart_low[j_low--] - ind) /
-                                       (i - ind + 1);
-                if (j_low == jseg)
+
+            output_low_curr += (input[i] - output_low_curr) /
+                               (i - indstart_low[j_low] + 1);
+            output[indjseg] = output_low_first;
+            while ((j_low > jseg) &&
+                   (output_low_curr >= output[ind = indstart_low[j_low - 1]]))
+                output_low_curr += (output[ind] - output_low_curr) *
+                                   (double)(indstart_low[j_low--] - ind) /
+                                   (i - ind + 1);
+            if (j_low == jseg)
+            {
+                while ((output_low_curr >= output_up_first) && (jseg < j_up))
                 {
-                    while ((output_low_curr >= output_up_first) && (jseg < j_up))
-                    {
-                        indjseg2 = indstart_up[++jseg];
-                        output_low_curr += (output_low_curr - output_up_first) *
-                                          (double)(indjseg2 - indjseg) /
-                                          (i - indjseg2 + 1);
-                        while (indjseg < indjseg2)
-                            output[indjseg++] = output_up_first;
-                        output_up_first = output[indjseg];
-                    }
-                    if ((indstart_low[j_low = jseg] = indjseg) == i)
-                        output_low_first = output_up_first - twolambda;
-                    else
-                        output_low_first = output_low_curr;
+                    indjseg2 = indstart_up[++jseg];
+                    output_low_curr += (output_low_curr - output_up_first) *
+                                       (double)(indjseg2 - indjseg) /
+                                       (i - indjseg2 + 1);
+                    while (indjseg < indjseg2)
+                        output[indjseg++] = output_up_first;
+                    output_up_first = output[indjseg];
                 }
+                if ((indstart_low[j_low = jseg] = indjseg) == i)
+                    output_low_first = output_up_first - twolambda;
                 else
-                    output[indstart_low[j_low]] = output_low_curr;
+                    output_low_first = output_low_curr;
             }
+            else
+                output[indstart_low[j_low]] = output_low_curr;
         }
         else
         {
