@@ -275,7 +275,6 @@ static void tv1d_denoise_v2_double(const double *input, double *output,
                     output[indstart_up[j_up]] = output_up_curr;
             }
             else
-            {
                 output_up_curr = output[i] = input[indstart_up[++j_up] = i];
                 output_low_curr +=
                     (input[i] - output_low_curr) /
@@ -305,7 +304,6 @@ static void tv1d_denoise_v2_double(const double *input, double *output,
                 }
                 else
                     output[indstart_low[j_low]] = output_low_curr;
-            }
         }
         else
         {
