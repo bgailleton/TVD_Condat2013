@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "TVDCondat2013"
-version = "0.1.4"
+version = "0.1.5"
 description = "Python port of Condat (2013) 1D Total Variation Denoising using pybind11 and NumPy"
 readme = "README.md"
 authors = [
