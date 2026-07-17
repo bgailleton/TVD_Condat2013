@@ -19,6 +19,7 @@ if increment not in allowed_increments:
 
 setup_path = Path("setup.py")
 conf_path = Path("docs/conf.py")
+pyproject_path = Path("pyproject.toml")
 
 def read_version(text):
     m = re.search(r"__version__\s*=\s*['\"](\d+)\.(\d+)\.(\d+)['\"]", text)
@@ -63,5 +64,14 @@ conf_text = re.sub(
 )
 
 conf_path.write_text(conf_text)
+
+pyproject_text = pyproject_path.read_text()
+pyproject_text = re.sub(
+    r'(?m)^(version\s*=\s*")([^"]+)(")',
+    lambda m: f"{m.group(1)}{new_version}{m.group(3)}",
+    pyproject_text,
+    count=1,
+)
+pyproject_path.write_text(pyproject_text)
 
 print(new_version)
